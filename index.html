@@ -104,6 +104,36 @@
     gap:16px;
   }
 
+  .auth{
+    max-width:420px;
+    margin:0 auto;
+    padding:38px 16px 44px;
+  }
+  .auth-card{padding:24px}
+  .auth-logo{width:66px;height:66px;margin:0 auto 16px}
+  .auth-card h2{
+    margin:0;
+    font-size:20px;
+    font-weight:700;
+    letter-spacing:-.3px;
+    text-align:center;
+  }
+  .auth-sub{
+    margin:7px 0 22px;
+    font-size:12.5px;
+    line-height:1.55;
+    color:var(--muted);
+    text-align:center;
+  }
+  .auth-msg{
+    min-height:16px;
+    margin:12px 0 0;
+    font-size:12.5px;
+    line-height:1.5;
+    color:#ff9a92;
+  }
+  .auth-msg:empty{display:none}
+
   .stats{display:flex;flex-direction:column;gap:12px}
 
   .stat{
@@ -250,6 +280,7 @@
     cursor:pointer;
   }
   .btn svg{width:19px;height:19px}
+  .btn:disabled{opacity:.6;cursor:default}
   .btn-primary{
     width:100%;
     height:52px;
@@ -257,7 +288,7 @@
     color:#fff;
     background:#2f8bff;
   }
-  .btn-primary:hover{background:#4a9cff}
+  .btn-primary:hover:not(:disabled){background:#4a9cff}
 
   .search-row{position:relative;margin-bottom:6px}
   .search-row svg{
@@ -452,12 +483,14 @@
   .sheet-action.danger{color:#ff9a92}
   .sheet-action.danger svg{color:#ff9a92}
   .sheet-action.danger:hover{background:rgba(240,101,92,.08);border-color:rgba(240,101,92,.35)}
+  .sheet-divider{height:1px;background:var(--line-soft);margin:14px 0}
   .sheet-note{
     margin:8px 2px 0;
     font-size:11px;
     line-height:1.6;
     color:var(--dim);
   }
+  .sheet-note strong{color:#c6d2e2;font-weight:600}
 
   #toasts{
     position:fixed;
@@ -486,7 +519,7 @@
 
   @media print{
     body{background:#fff !important;color:#111 !important}
-    .appbar,.stats,.form-card,details.roster,.search-row,.backdrop,.foot,.icon-x,#toasts{display:none !important}
+    .appbar,.stats,.form-card,details.roster,.search-row,.backdrop,.foot,.icon-x,#toasts,#authScreen{display:none !important}
     main{max-width:none;padding:0;gap:0}
     .card{
       background:#fff !important;
@@ -517,7 +550,7 @@
       <h1>Information Technology</h1>
       <p>Attendance Register</p>
     </div>
-    <button class="icon-btn" id="settingsBtn" type="button" aria-label="Settings" aria-expanded="false">
+    <button class="icon-btn" id="settingsBtn" type="button" aria-label="Settings" aria-expanded="false" hidden>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="3.1"/>
         <path d="M19.4 14.6a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.11-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.56-1.11 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9a1.7 1.7 0 0 0 1.56 1.03H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5.57Z"/>
@@ -526,7 +559,29 @@
   </div>
 </header>
 
-<main>
+<section class="auth" id="authScreen" hidden>
+  <div class="card auth-card">
+    <img class="logo auth-logo" src="assets/citsa-logo.png" alt="" width="66" height="66">
+    <h2>Administrator sign in</h2>
+    <p class="auth-sub">Attendance records are stored in the department database and only open to the administrator account.</p>
+
+    <form id="authForm" novalidate>
+      <div class="field">
+        <label for="authEmail">Email</label>
+        <input id="authEmail" type="email" autocomplete="username" spellcheck="false" placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label for="authPassword">Password</label>
+        <input id="authPassword" type="password" autocomplete="current-password" placeholder="Password">
+      </div>
+      <button type="submit" class="btn btn-primary" id="authSubmit">Sign in</button>
+    </form>
+
+    <p class="auth-msg" id="authMsg" role="status"></p>
+  </div>
+</section>
+
+<main id="app" hidden>
 
   <section class="stats" aria-label="Summary">
     <article class="stat">
@@ -602,7 +657,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M20 6 9 17l-5-5"/>
         </svg>
-        Mark present
+        <span id="submitLabel">Mark present</span>
       </button>
     </form>
   </section>
@@ -683,17 +738,32 @@
       Reset all data
     </button>
 
-    <p class="sheet-note">Saved in this browser only. Export a CSV to keep a copy.</p>
+    <div class="sheet-divider"></div>
+
+    <button class="sheet-action" id="signOutBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/>
+        <path d="M10 8l-4 4 4 4"/>
+        <path d="M6 12h9"/>
+      </svg>
+      Sign out
+    </button>
+
+    <p class="sheet-note">Signed in as <strong id="whoami"></strong>. Records are stored in the department database. Export a CSV to keep a copy.</p>
   </div>
 </div>
 
 <div id="toasts" aria-live="polite" aria-atomic="false"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function () {
   "use strict";
 
-  var STORAGE_KEY = "it-attendance-v1";
+  // Supabase project settings. Use the Project URL and the publishable (anon) key.
+  var SUPABASE_URL = "https://qukcgoibmwxgicvefmvt.supabase.co";
+  var SUPABASE_KEY = "sb_publishable_3zaAsVJU7xH8iLKiu4wJdA_YxQ6PYsv";
+
   var NAME_RE = /^[\p{L}][\p{L}\s.'-]*$/u;
 
   var ID_PREFIX = "PS/ITC/25/";
@@ -711,6 +781,13 @@
   var $ = function (sel) { return document.querySelector(sel); };
 
   var els = {
+    app: $("#app"),
+    authScreen: $("#authScreen"),
+    authForm: $("#authForm"),
+    authEmail: $("#authEmail"),
+    authPassword: $("#authPassword"),
+    authSubmit: $("#authSubmit"),
+    authMsg: $("#authMsg"),
     form: $("#entryForm"),
     name: $("#studentName"),
     id: $("#studentId"),
@@ -733,8 +810,16 @@
     toasts: $("#toasts"),
     sheetBackdrop: $("#sheetBackdrop"),
     settingsBtn: $("#settingsBtn"),
-    sheetClose: $("#sheetClose")
+    sheetClose: $("#sheetClose"),
+    submitBtn: $("#submitBtn"),
+    submitLabel: $("#submitLabel"),
+    whoami: $("#whoami"),
+    signOutBtn: $("#signOutBtn")
   };
+
+  var db = null;
+  var state = { students: [], records: [], last: null };
+  var lastAdded = null;
 
   function esc(value) {
     return String(value)
@@ -784,42 +869,6 @@
     });
   }
 
-  function load() {
-    var empty = { students: [], records: [] };
-    try {
-      var data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
-      if (!data) return empty;
-      return {
-        students: (data.students || []).filter(function (s) { return s && s.id && s.name; })
-          .map(function (s) { return { id: String(s.id), name: String(s.name) }; }),
-        records: (data.records || []).filter(function (r) { return r && r.date && r.id; })
-          .map(function (r) {
-            return {
-              date: String(r.date),
-              id: String(r.id),
-              name: String(r.name || ""),
-              time: r.time || new Date().toISOString()
-            };
-          })
-      };
-    } catch (e) {
-      return empty;
-    }
-  }
-
-  var state = load();
-  var lastAdded = null;
-
-  function save() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      return true;
-    } catch (e) {
-      toast("Could not save to this browser's storage.", "error");
-      return false;
-    }
-  }
-
   function toast(message, kind) {
     var el = document.createElement("div");
     el.className = "toast" + (kind === "error" ? " error" : "");
@@ -860,12 +909,6 @@
     return { byId: byId, byName: byName, errors: errors };
   }
 
-  function duplicateRecord(date, studentId) {
-    return state.records.find(function (r) {
-      return r.date === date && normId(r.id) === normId(studentId);
-    }) || null;
-  }
-
   function liveHints() {
     var name = els.name.value.replace(/\s+/g, " ").trim();
     var id = expandId(els.id.value);
@@ -901,7 +944,140 @@
     }
   }
 
-  function submitEntry() {
+  function setBusy(on) {
+    els.submitBtn.disabled = on;
+    els.submitLabel.textContent = on ? "Saving..." : "Mark present";
+  }
+
+  function dbMessage(error) {
+    if (!error) return "Something went wrong. Try again.";
+    if (error.code === "23505") return "That student is already registered.";
+    if (error.code === "23503") return "The student record was not found. Refresh the page.";
+    if (error.code === "23514") return "That value does not match the allowed format.";
+    if (error.code === "PGRST301" || error.status === 401 || error.status === 403 || error.code === "42501") {
+      return "You do not have access. Sign in as the administrator.";
+    }
+    return error.message || "Something went wrong. Try again.";
+  }
+
+  function handleError(error) {
+    if (error && (error.code === "PGRST301" || error.status === 401)) {
+      toast("Session expired. Sign in again.", "error");
+      db.auth.signOut();
+      return;
+    }
+    toast(dbMessage(error), "error");
+  }
+
+  function showAuth(message) {
+    els.authScreen.hidden = false;
+    els.app.hidden = true;
+    els.settingsBtn.hidden = true;
+    if (message) els.authMsg.textContent = message;
+  }
+
+  async function fetchStudents() {
+    var r = await db.from("students").select("student_id, name").order("name");
+    if (r.error) throw r.error;
+    return r.data.map(function (s) {
+      return { id: s.student_id, name: s.name };
+    });
+  }
+
+  async function fetchRecords() {
+    var r = await db
+      .from("attendance")
+      .select("student_id, marked_at, students(name)")
+      .eq("date", els.date.value)
+      .order("marked_at");
+    if (r.error) throw r.error;
+    return r.data.map(function (a) {
+      return {
+        date: els.date.value,
+        id: a.student_id,
+        name: a.students ? a.students.name : "",
+        time: a.marked_at
+      };
+    });
+  }
+
+  async function fetchLast() {
+    var r = await db
+      .from("attendance")
+      .select("marked_at, students(name)")
+      .order("marked_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (r.error) throw r.error;
+    if (!r.data) return null;
+    return {
+      name: r.data.students ? r.data.students.name : "",
+      time: r.data.marked_at
+    };
+  }
+
+  async function refresh() {
+    try {
+      var result = await Promise.all([fetchStudents(), fetchRecords(), fetchLast()]);
+      state.students = result[0];
+      state.records = result[1];
+      state.last = result[2];
+    } catch (e) {
+      handleError(e);
+    }
+    render();
+  }
+
+  async function enterApp() {
+    els.authMsg.textContent = "";
+
+    var admin = await db.from("admins").select("user_id").maybeSingle();
+    if (admin.error) {
+      showAuth(dbMessage(admin.error));
+      await db.auth.signOut();
+      return;
+    }
+    if (!admin.data) {
+      await db.auth.signOut();
+      showAuth("This account is not an administrator.");
+      return;
+    }
+
+    var user = await db.auth.getUser();
+    els.whoami.textContent = user.data.user ? user.data.user.email : "";
+
+    els.authScreen.hidden = true;
+    els.app.hidden = false;
+    els.settingsBtn.hidden = false;
+    await refresh();
+  }
+
+  async function start() {
+    if (!SUPABASE_URL || !SUPABASE_KEY) {
+      showAuth("Supabase is not configured. Add SUPABASE_URL and SUPABASE_KEY at the top of the script in index.html.");
+      els.authSubmit.disabled = true;
+      return;
+    }
+    if (typeof supabase === "undefined") {
+      showAuth("The Supabase library could not load. Check your internet connection and reload.");
+      els.authSubmit.disabled = true;
+      return;
+    }
+
+    db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    db.auth.onAuthStateChange(function (event) {
+      if (event === "SIGNED_OUT") showAuth("");
+    });
+
+    var session = await db.auth.getSession();
+    if (session.data.session) {
+      await enterApp();
+    } else {
+      showAuth("");
+    }
+  }
+
+  async function submitEntry() {
     clearFieldErrors();
 
     var name = els.name.value.replace(/\s+/g, " ").trim();
@@ -949,51 +1125,60 @@
     var studentId = student ? student.id : id;
     var studentName = student ? student.name : name;
 
-    if (duplicateRecord(date, studentId)) {
+    var alreadyMarked = state.records.some(function (r) {
+      return normId(r.id) === normId(studentId);
+    });
+    if (alreadyMarked) {
       setFieldError(els.fieldId, els.hintId, "Already marked for this date.");
       toast(studentName + " is already marked for this date.", "error");
       return;
     }
 
-    if (!student) state.students.push({ id: id, name: name });
-    state.records.push({
-      date: date,
-      id: studentId,
-      name: studentName,
-      time: new Date().toISOString()
-    });
+    setBusy(true);
+    try {
+      if (!student) {
+        var added = await db.from("students").insert({ student_id: id, name: name });
+        if (added.error) {
+          if (added.error.code === "23505") {
+            await refresh();
+            var again = findConflicts(name, id);
+            if (again.errors.id) setFieldError(els.fieldId, els.hintId, again.errors.id);
+            if (again.errors.name) setFieldError(els.fieldName, els.hintName, again.errors.name);
+            toast("Student already registered.", "error");
+            return;
+          }
+          throw added.error;
+        }
+      }
 
-    if (!save()) {
-      if (!student) state.students.pop();
-      state.records.pop();
-      return;
+      var marked = await db.from("attendance").insert({ student_id: studentId, date: date });
+      if (marked.error) {
+        if (marked.error.code === "23505") {
+          toast(studentName + " is already marked for this date.", "error");
+          await refresh();
+          return;
+        }
+        throw marked.error;
+      }
+
+      lastAdded = date + "|" + normId(studentId);
+      await refresh();
+      toast(studentName + " marked present.", "ok");
+
+      els.name.value = "";
+      els.id.value = "";
+      clearFieldErrors();
+      els.name.focus();
+    } catch (e) {
+      handleError(e);
+    } finally {
+      setBusy(false);
     }
-
-    lastAdded = date + "|" + normId(studentId);
-    render();
-    toast(studentName + " marked present.", "ok");
-
-    els.name.value = "";
-    els.id.value = "";
-    clearFieldErrors();
-    els.name.focus();
-  }
-
-  function sessionRecords() {
-    return state.records
-      .filter(function (r) { return r.date === els.date.value; })
-      .sort(function (a, b) { return a.time.localeCompare(b.time); });
-  }
-
-  function latestRecord() {
-    return state.records.slice().sort(function (a, b) {
-      return b.time.localeCompare(a.time);
-    })[0] || null;
   }
 
   function renderRecords() {
     var q = els.search.value.trim();
-    var rows = sessionRecords();
+    var rows = state.records.slice();
 
     if (q) {
       var nq = normName(q), iq = normId(q);
@@ -1027,13 +1212,13 @@
   }
 
   function renderStats() {
-    var marked = sessionRecords().length;
-    var last = latestRecord();
+    var marked = state.records.length;
+    var last = state.last;
 
     els.statStudents.textContent = state.students.length;
     els.statMarked.textContent = marked;
     els.countChip.textContent = marked + " marked";
-    els.statLast.textContent = last
+    els.statLast.textContent = last && last.name
       ? last.name + " (" + fmtTime(last.time) + ")"
       : "No activity yet";
     els.statLast.title = els.statLast.textContent;
@@ -1098,27 +1283,37 @@
     }
   });
 
-  els.date.addEventListener("change", function () {
+  els.date.addEventListener("change", async function () {
     if (!els.date.value) els.date.value = isoDate(new Date());
+    render();
+    try {
+      state.records = await fetchRecords();
+    } catch (e) {
+      handleError(e);
+    }
     render();
   });
 
   els.search.addEventListener("input", renderRecords);
 
-  els.records.addEventListener("click", function (e) {
+  els.records.addEventListener("click", async function (e) {
     var btn = e.target.closest('button[data-act="remove"]');
     if (!btn) return;
     var date = btn.getAttribute("data-date");
     var id = btn.getAttribute("data-id");
-    state.records = state.records.filter(function (r) {
-      return !(r.date === date && normId(r.id) === normId(id));
-    });
-    save();
-    render();
+    btn.disabled = true;
+
+    var result = await db.from("attendance").delete().eq("date", date).eq("student_id", id);
+    if (result.error) {
+      btn.disabled = false;
+      handleError(result.error);
+      return;
+    }
+    await refresh();
     toast("Entry removed.", "ok");
   });
 
-  els.rosterList.addEventListener("click", function (e) {
+  els.rosterList.addEventListener("click", async function (e) {
     var btn = e.target.closest('button[data-act="delete-student"]');
     if (!btn) return;
     var id = btn.getAttribute("data-id");
@@ -1126,10 +1321,14 @@
     if (!student) return;
     if (!confirm('Delete "' + student.name + '" (ID ' + student.id + ") and all their records?")) return;
 
-    state.students = state.students.filter(function (s) { return normId(s.id) !== normId(id); });
-    state.records = state.records.filter(function (r) { return normId(r.id) !== normId(id); });
-    save();
-    render();
+    btn.disabled = true;
+    var result = await db.from("students").delete().eq("student_id", student.id);
+    if (result.error) {
+      btn.disabled = false;
+      handleError(result.error);
+      return;
+    }
+    await refresh();
     toast(student.name + " removed.", "ok");
   });
 
@@ -1147,40 +1346,63 @@
     window.print();
   });
 
-  $("#resetBtn").addEventListener("click", function () {
+  $("#resetBtn").addEventListener("click", async function () {
     if (!state.students.length && !state.records.length) {
       toast("No data to reset.", "error");
       return;
     }
     if (!confirm("Delete all students and attendance records?")) return;
 
+    var result = await db.from("students").delete().not("id", "is", null);
+    if (result.error) {
+      handleError(result.error);
+      return;
+    }
     state.students = [];
     state.records = [];
-    save();
+    state.last = null;
     els.search.value = "";
     closeSheet();
     render();
     toast("All data cleared.", "ok");
   });
 
+  $("#signOutBtn").addEventListener("click", async function () {
+    closeSheet();
+    await db.auth.signOut();
+    state = { students: [], records: [], last: null };
+    els.whoami.textContent = "";
+    showAuth("");
+  });
+
   function csvCell(value) {
     return '"' + String(value).replace(/"/g, '""') + '"';
   }
 
-  $("#exportBtn").addEventListener("click", function () {
-    if (!state.records.length) {
+  $("#exportBtn").addEventListener("click", async function () {
+    var result = await db
+      .from("attendance")
+      .select("date, marked_at, student_id, students(name)")
+      .order("date", { ascending: true })
+      .order("marked_at", { ascending: true });
+
+    if (result.error) {
+      handleError(result.error);
+      return;
+    }
+    if (!result.data.length) {
       toast("No records to export.", "error");
       return;
     }
 
-    var rows = state.records.slice().sort(function (a, b) {
-      if (a.date !== b.date) return a.date < b.date ? -1 : 1;
-      return a.time.localeCompare(b.time);
-    });
-
     var lines = [["Date", "Student ID", "Student Name", "Time Marked"].map(csvCell).join(",")];
-    rows.forEach(function (r) {
-      lines.push([r.date, r.id, r.name, fmtTime(r.time)].map(csvCell).join(","));
+    result.data.forEach(function (r) {
+      lines.push([
+        r.date,
+        r.student_id,
+        r.students ? r.students.name : "",
+        fmtTime(r.marked_at)
+      ].map(csvCell).join(","));
     });
 
     var blob = new Blob(["\ufeff" + lines.join("\r\n")], { type: "text/csv;charset=utf-8;" });
@@ -1193,11 +1415,41 @@
     a.remove();
     setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
     closeSheet();
-    toast("Exported " + rows.length + " records.", "ok");
+    toast("Exported " + result.data.length + " records.", "ok");
+  });
+
+  els.authForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    var email = els.authEmail.value.trim();
+    var password = els.authPassword.value;
+
+    if (!email || !password) {
+      els.authMsg.textContent = "Enter your email and password.";
+      return;
+    }
+
+    els.authSubmit.disabled = true;
+    els.authSubmit.textContent = "Signing in...";
+    els.authMsg.textContent = "";
+
+    var result = await db.auth.signInWithPassword({ email: email, password: password });
+
+    els.authSubmit.disabled = false;
+    els.authSubmit.textContent = "Sign in";
+
+    if (result.error) {
+      els.authMsg.textContent = result.error.message;
+      return;
+    }
+
+    els.authPassword.value = "";
+    await enterApp();
   });
 
   els.date.value = isoDate(new Date());
   render();
+  start();
 })();
 </script>
 </body>
