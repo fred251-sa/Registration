@@ -71,6 +71,10 @@ Sign-ups are not part of either page. Create the administrator yourself and keep
 password private. You can also turn off new sign-ups under **Authentication, Providers,
 Email**.
 
+The security advisor flags `check_in` because visitors can run it. That is required for the
+public page. The function only adds one student and one row for today, then returns that
+row. It cannot read or change anything else.
+
 ## Data
 
 - `students`: one row per student. The ID and the name (ignoring case and outer spaces) are
