@@ -1021,6 +1021,13 @@
 
     <div class="sheet-divider"></div>
 
+    <button class="sheet-action" id="sheetCancel" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+        <path d="M6 6l12 12M18 6L6 18"/>
+      </svg>
+      Cancel
+    </button>
+
     <a class="sheet-action" href="index.html">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M14 4h6v6"/><path d="M20 4l-9 9"/>
@@ -1660,13 +1667,17 @@
 
   els.settingsBtn.addEventListener("click", openSheet);
   els.sheetClose.addEventListener("click", closeSheet);
+  // The settings sheet only closes from its own close button (or after an action).
+  // Clicking the empty space around it does nothing.
   els.sheetBackdrop.addEventListener("click", function (e) {
-    if (e.target === els.sheetBackdrop) closeSheet();
+    e.stopPropagation();
   });
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape" && !els.sheetBackdrop.hidden) closeSheet();
     else if (e.key === "Escape") closeMenu();
   });
+
+  $("#sheetCancel").addEventListener("click", closeSheet);
 
   $("#printBtn").addEventListener("click", function () {
     closeSheet();
