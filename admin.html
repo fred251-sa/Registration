@@ -135,59 +135,6 @@
   }
   .auth-msg:empty{display:none}
 
-  .mfa-qr{
-    display:block;
-    width:190px;
-    height:190px;
-    margin:0 auto 14px;
-    padding:10px;
-    background:#fff;
-    border-radius:14px;
-    object-fit:contain;
-    overflow:hidden;
-  }
-  .mfa-qr svg{display:block;width:100%;height:100%}
-  .mfa-key{
-    margin:0 0 18px;
-    font-size:11.5px;
-    line-height:1.55;
-    color:var(--muted);
-    text-align:center;
-  }
-  .mfa-key code{
-    display:block;
-    margin-top:6px;
-    padding:7px 9px;
-    border-radius:8px;
-    background:var(--input);
-    border:1px solid var(--line);
-    color:#dbe4f0;
-    font-family:ui-monospace, "Cascadia Mono", Consolas, monospace;
-    font-size:11px;
-    letter-spacing:.05em;
-    word-break:break-all;
-  }
-  .mfa-code{
-    text-align:center;
-    font-size:20px !important;
-    font-variant-numeric:tabular-nums;
-    letter-spacing:.35em;
-    padding-left:18px !important;
-  }
-  .link-btn{
-    display:block;
-    margin:14px auto 0;
-    padding:6px;
-    border:0;
-    background:none;
-    color:var(--muted);
-    font:inherit;
-    font-size:12.5px;
-    cursor:pointer;
-    text-decoration:underline;
-  }
-  .link-btn:hover{color:#fff}
-
   .stats{display:flex;flex-direction:column;gap:12px}
 
   .stat{
@@ -574,7 +521,7 @@
 
   @media print{
     body{background:#fff !important;color:#111 !important}
-    .appbar,.stats,.form-card,details.roster,.search-row,.backdrop,.foot,.icon-x,#toasts,#authScreen,#mfaScreen{display:none !important}
+    .appbar,.stats,.form-card,details.roster,.search-row,.backdrop,.foot,.icon-x,#toasts,#authScreen{display:none !important}
     main{max-width:none;padding:0;gap:0}
     .card{
       background:#fff !important;
@@ -618,7 +565,7 @@
   <div class="card auth-card">
     <img class="logo auth-logo" src="assets/citsa-logo.png" alt="" width="66" height="66">
     <h2>Administrator sign in</h2>
-    <p class="auth-sub">Attendance records are stored in the department database and only open to the administrator account. Sign-in needs the password and a 6-digit code from your authenticator app.</p>
+    <p class="auth-sub">Attendance records are stored in the department database and only open to the administrator account.</p>
 
     <form id="authForm" novalidate>
       <div class="field">
@@ -633,31 +580,6 @@
     </form>
 
     <p class="auth-msg" id="authMsg" role="status"></p>
-  </div>
-</section>
-
-<section class="auth" id="mfaScreen" hidden>
-  <div class="card auth-card">
-    <img class="logo auth-logo" src="assets/citsa-logo.png" alt="" width="66" height="66">
-    <h2 id="mfaTitle">Two-step verification</h2>
-    <p class="auth-sub" id="mfaText"></p>
-
-    <div class="mfa-qr" id="mfaQr" aria-hidden="true" hidden></div>
-    <p class="mfa-key" id="mfaKey" hidden>Can't scan it? Enter this key in the app:
-      <code id="mfaSecret"></code>
-    </p>
-
-    <form id="mfaForm" novalidate>
-      <div class="field">
-        <label for="mfaCode">6-digit code</label>
-        <input id="mfaCode" class="mfa-code" type="text" inputmode="numeric" autocomplete="one-time-code"
-               maxlength="6" placeholder="000000" spellcheck="false">
-      </div>
-      <button type="submit" class="btn btn-primary" id="mfaSubmit">Verify</button>
-    </form>
-
-    <p class="auth-msg" id="mfaMsg" role="status"></p>
-    <button type="button" class="link-btn" id="mfaSignOut">Sign out</button>
   </div>
 </section>
 
@@ -838,7 +760,7 @@
       Sign out
     </button>
 
-    <p class="sheet-note">Signed in as <strong id="whoami"></strong>. Two-step verification is on. Records are stored in the department database. Export a CSV to keep a copy.</p>
+    <p class="sheet-note">Signed in as <strong id="whoami"></strong>. Records are stored in the department database. Export a CSV to keep a copy.</p>
   </div>
 </div>
 
@@ -877,17 +799,6 @@
     authPassword: $("#authPassword"),
     authSubmit: $("#authSubmit"),
     authMsg: $("#authMsg"),
-    mfaScreen: $("#mfaScreen"),
-    mfaForm: $("#mfaForm"),
-    mfaTitle: $("#mfaTitle"),
-    mfaText: $("#mfaText"),
-    mfaQr: $("#mfaQr"),
-    mfaKey: $("#mfaKey"),
-    mfaSecret: $("#mfaSecret"),
-    mfaCode: $("#mfaCode"),
-    mfaSubmit: $("#mfaSubmit"),
-    mfaMsg: $("#mfaMsg"),
-    mfaSignOut: $("#mfaSignOut"),
     form: $("#entryForm"),
     name: $("#studentName"),
     id: $("#studentId"),
@@ -920,7 +831,6 @@
   var db = null;
   var state = { students: [], records: [], last: null };
   var lastAdded = null;
-  var pendingFactorId = null;
 
   function esc(value) {
     return String(value)
@@ -1063,7 +973,7 @@
 
   function handleError(error) {
     if (error && (error.code === "PGRST301" || error.status === 401)) {
-      showAuth("Session expired. Sign in again.");
+      toast("Session expired. Sign in again.", "error");
       db.auth.signOut();
       return;
     }
@@ -1072,127 +982,9 @@
 
   function showAuth(message) {
     els.authScreen.hidden = false;
-    els.mfaScreen.hidden = true;
     els.app.hidden = true;
     els.settingsBtn.hidden = true;
-    els.authMsg.textContent = message || "";
-    clearQr();
-  }
-
-  function clearQr() {
-    els.mfaQr.innerHTML = "";
-  }
-
-  function showMfaScreen(title, text, qr, key) {
-    els.authScreen.hidden = true;
-    els.mfaScreen.hidden = false;
-    els.app.hidden = true;
-    els.settingsBtn.hidden = true;
-
-    els.mfaTitle.textContent = title;
-    els.mfaText.textContent = text;
-    els.mfaQr.hidden = !qr;
-    els.mfaKey.hidden = !key;
-
-    clearQr();
-    if (qr) {
-      var svg = qr.indexOf("data:") === 0 ? qr.slice(qr.indexOf(",") + 1) : qr;
-      els.mfaQr.innerHTML = svg;
-    }
-    els.mfaSecret.textContent = key || "";
-
-    els.mfaCode.value = "";
-    els.mfaMsg.textContent = "";
-    els.mfaSubmit.disabled = false;
-    els.mfaSubmit.textContent = "Verify";
-    els.mfaCode.focus();
-  }
-
-  async function totpFactors() {
-    var r = await db.auth.mfa.listFactors();
-    if (r.error) throw r.error;
-    var all = (r.data && r.data.all) || [];
-    return all.filter(function (f) { return f.factor_type === "totp"; });
-  }
-
-  async function showMfaEnroll() {
-    try {
-      var factors = await totpFactors();
-
-      for (var i = 0; i < factors.length; i++) {
-        if (factors[i].status !== "verified") {
-          await db.auth.mfa.unenroll({ factorId: factors[i].id });
-        }
-      }
-
-      var res = await db.auth.mfa.enroll({
-        factorType: "totp",
-        friendlyName: "Admin panel"
-      });
-      if (res.error) throw res.error;
-
-      pendingFactorId = res.data.id;
-      showMfaScreen(
-        "Set up two-step verification",
-        "Scan this QR code with Google Authenticator, Microsoft Authenticator, or Authy. Then enter the 6-digit code shown in the app.",
-        res.data.totp.qr_code,
-        res.data.totp.secret
-      );
-    } catch (e) {
-      pendingFactorId = null;
-      showAuth("Two-step verification could not start. " + (e.message || "Try again."));
-    }
-  }
-
-  async function showMfaChallenge() {
-    try {
-      var factors = await totpFactors();
-      var factor = factors.find(function (f) { return f.status === "verified"; });
-      if (!factor) return showMfaEnroll();
-
-      pendingFactorId = factor.id;
-      showMfaScreen(
-        "Two-step verification",
-        "Enter the 6-digit code from your authenticator app.",
-        null,
-        null
-      );
-    } catch (e) {
-      pendingFactorId = null;
-      showAuth("Two-step verification could not start. " + (e.message || "Try again."));
-    }
-  }
-
-  async function gate() {
-    els.authMsg.textContent = "";
-
-    var admin = await db.from("admins").select("user_id").maybeSingle();
-    if (admin.error) {
-      showAuth(dbMessage(admin.error));
-      await db.auth.signOut();
-      return;
-    }
-    if (!admin.data) {
-      showAuth("This account is not an administrator.");
-      await db.auth.signOut();
-      return;
-    }
-
-    var aal = await db.auth.mfa.getAuthenticatorAssuranceLevel();
-    if (aal.error) {
-      showAuth("Two-step verification is unavailable. " + aal.error.message);
-      return;
-    }
-
-    if (aal.data.currentLevel === "aal2") {
-      await enterApp();
-      return;
-    }
-    if (aal.data.nextLevel === "aal2") {
-      await showMfaChallenge();
-      return;
-    }
-    await showMfaEnroll();
+    if (message) els.authMsg.textContent = message;
   }
 
   async function fetchStudents() {
@@ -1249,13 +1041,23 @@
 
   async function enterApp() {
     els.authMsg.textContent = "";
-    els.mfaMsg.textContent = "";
+
+    var admin = await db.from("admins").select("user_id").maybeSingle();
+    if (admin.error) {
+      showAuth(dbMessage(admin.error));
+      await db.auth.signOut();
+      return;
+    }
+    if (!admin.data) {
+      await db.auth.signOut();
+      showAuth("This account is not an administrator.");
+      return;
+    }
 
     var user = await db.auth.getUser();
     els.whoami.textContent = user.data.user ? user.data.user.email : "";
 
     els.authScreen.hidden = true;
-    els.mfaScreen.hidden = true;
     els.app.hidden = false;
     els.settingsBtn.hidden = false;
     await refresh();
@@ -1275,12 +1077,12 @@
 
     db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     db.auth.onAuthStateChange(function (event) {
-      if (event === "SIGNED_OUT" && !els.app.hidden) showAuth("");
+      if (event === "SIGNED_OUT") showAuth("");
     });
 
     var session = await db.auth.getSession();
     if (session.data.session) {
-      await gate();
+      await enterApp();
     } else {
       showAuth("");
     }
@@ -1653,61 +1455,7 @@
     }
 
     els.authPassword.value = "";
-    await gate();
-  });
-
-  els.mfaCode.addEventListener("input", function () {
-    this.value = this.value.replace(/\D/g, "").slice(0, 6);
-  });
-
-  els.mfaForm.addEventListener("submit", async function (e) {
-    e.preventDefault();
-
-    var code = els.mfaCode.value.replace(/\D/g, "");
-    if (code.length !== 6) {
-      els.mfaMsg.textContent = "Enter the 6-digit code.";
-      return;
-    }
-    if (!pendingFactorId) {
-      els.mfaMsg.textContent = "Sign in again to continue.";
-      return;
-    }
-
-    els.mfaSubmit.disabled = true;
-    els.mfaSubmit.textContent = "Checking...";
-    els.mfaMsg.textContent = "";
-
-    var challenge = await db.auth.mfa.challenge({ factorId: pendingFactorId });
-    if (challenge.error) {
-      els.mfaSubmit.disabled = false;
-      els.mfaSubmit.textContent = "Verify";
-      els.mfaMsg.textContent = challenge.error.message;
-      return;
-    }
-
-    var verified = await db.auth.mfa.verify({
-      factorId: pendingFactorId,
-      challengeId: challenge.data.id,
-      code: code
-    });
-
-    els.mfaSubmit.disabled = false;
-    els.mfaSubmit.textContent = "Verify";
-
-    if (verified.error) {
-      els.mfaMsg.textContent = "That code is not valid. Use the newest code and try again.";
-      els.mfaCode.select();
-      return;
-    }
-
-    pendingFactorId = null;
     await enterApp();
-  });
-
-  els.mfaSignOut.addEventListener("click", async function () {
-    pendingFactorId = null;
-    await db.auth.signOut();
-    showAuth("");
   });
 
   els.date.value = isoDate(new Date());
