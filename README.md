@@ -8,7 +8,7 @@ Two pages share one Supabase database.
 ## Student check-in
 
 Open the site root. Students type their full name and student ID and press
-**Mark me present**. The date is always today.
+**Submit**. The date is always today.
 
 Student IDs use the format `PS/ITC/25/0000`. Typing only the serial number completes it:
 `12` becomes `PS/ITC/25/0012`.
