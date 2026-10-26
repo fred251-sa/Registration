@@ -3,262 +3,206 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0a1322">
+<meta name="theme-color" content="#020617">
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="assets/citsa-logo.png">
 <title>Information Technology: Administrator Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     color-scheme: dark;
 
-    --bg:#0a1322;
-    --bar:#152238;
-    --card:#1a2436;
-    --sheet:#141f33;
-    --input:#0e1929;
-    --line:#2a3850;
-    --line-soft:#233045;
+    --bg:#020617;
+    --bg-2:#071226;
+    --glass:rgba(15,23,42,.72);
+    --glass-soft:rgba(15,23,42,.55);
+    --line:rgba(148,163,184,.16);
+    --line-strong:rgba(148,163,184,.28);
 
-    --text:#f2f6fc;
-    --muted:#8fa0b8;
-    --dim:#71839c;
-    --label:#93a4bd;
+    --text:#e6edf7;
+    --muted:#94a3b8;
+    --dim:#64748b;
+    --label:#8ea3c0;
 
-    --blue:#3b9dff;
+    --cyan:#22d3ee;
+    --sky:#38bdf8;
+    --violet:#a78bfa;
+    --indigo:#818cf8;
     --green:#34d399;
-    --purple:#a78bfa;
-    --red:#f0655c;
+    --red:#fb7185;
   }
 
   *{box-sizing:border-box}
   [hidden]{display:none !important}
 
+  html,body{height:100%}
+
   body{
     margin:0;
     min-height:100vh;
-    font-family:"Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+    font-family:Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
     color:var(--text);
-    background:var(--bg);
+    background:
+      radial-gradient(1100px 600px at 12% -10%, rgba(34,211,238,.14), transparent 60%),
+      radial-gradient(1000px 700px at 100% 0%, rgba(139,92,246,.16), transparent 55%),
+      linear-gradient(180deg, #020617 0%, #050d1f 45%, #020617 100%);
+    background-attachment: fixed;
     -webkit-font-smoothing:antialiased;
   }
 
   svg{display:block}
 
-  .appbar{
-    position:sticky;
-    top:0;
-    z-index:20;
-    background:var(--bar);
-    border-bottom:1px solid var(--line-soft);
+  /* ---------- animated glowing orbs ---------- */
+  .orbs{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+  .orb{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(70px);
+    opacity:.5;
+    will-change:transform;
   }
-  .appbar-inner{
-    max-width:720px;
-    margin:0 auto;
-    padding:13px 16px;
+  .orb.a{width:420px;height:420px;left:-90px;top:-80px;background:radial-gradient(circle at 30% 30%, #22d3ee, rgba(34,211,238,0) 70%);animation:floatA 26s ease-in-out infinite}
+  .orb.b{width:520px;height:520px;right:-140px;top:8%;background:radial-gradient(circle at 40% 40%, #8b5cf6, rgba(139,92,246,0) 70%);animation:floatB 32s ease-in-out infinite}
+  .orb.c{width:380px;height:380px;left:35%;bottom:-160px;background:radial-gradient(circle at 50% 50%, #38bdf8, rgba(56,189,248,0) 70%);animation:floatC 38s ease-in-out infinite}
+
+  @keyframes floatA{
+    0%,100%{transform:translate3d(0,0,0) scale(1)}
+    33%{transform:translate3d(80px,60px,0) scale(1.12)}
+    66%{transform:translate3d(30px,120px,0) scale(.94)}
+  }
+  @keyframes floatB{
+    0%,100%{transform:translate3d(0,0,0) scale(1)}
+    35%{transform:translate3d(-90px,80px,0) scale(.9)}
+    70%{transform:translate3d(-40px,-40px,0) scale(1.1)}
+  }
+  @keyframes floatC{
+    0%,100%{transform:translate3d(0,0,0) scale(1)}
+    40%{transform:translate3d(120px,-70px,0) scale(1.15)}
+    75%{transform:translate3d(-60px,-30px,0) scale(.95)}
+  }
+
+  /* ---------- shared glass ---------- */
+  .glass{
+    background:var(--glass);
+    border:1px solid var(--line);
+    border-radius:20px;
+    backdrop-filter:blur(22px) saturate(140%);
+    -webkit-backdrop-filter:blur(22px) saturate(140%);
+    box-shadow:0 24px 60px -24px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.05);
+  }
+
+  /* ---------- login ---------- */
+  .auth{
+    position:relative;
+    z-index:2;
+    min-height:100vh;
     display:flex;
     align-items:center;
-    gap:12px;
+    justify-content:center;
+    padding:28px 16px 44px;
   }
-  .logo{
-    width:46px;
-    height:46px;
-    flex:none;
+  .auth-card{
+    width:100%;
+    max-width:410px;
+    padding:32px 28px 26px;
+    animation:rise .55s cubic-bezier(.22,1,.36,1) both;
+  }
+  .auth-card.shake{animation:shake .42s ease}
+  .auth-logo{
+    width:64px;height:64px;
+    margin:0 auto 16px;
     display:block;
+    border-radius:18px;
+    box-shadow:0 12px 30px -10px rgba(56,189,248,.65), 0 0 0 1px rgba(255,255,255,.08);
   }
-  .app-id{flex:1;min-width:0}
-  .app-id h1{
-    margin:0;
-    font-size:18.5px;
+  .eyebrow{
+    margin:0 0 6px;
+    text-align:center;
+    font-size:10.5px;
     font-weight:700;
-    letter-spacing:-.3px;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--cyan);
   }
-  .app-id p{
-    margin:2px 0 0;
-    font-size:12px;
-    color:var(--muted);
-  }
-  .icon-btn{
-    margin-left:auto;
-    width:40px;
-    height:40px;
-    flex:none;
-    display:grid;
-    place-items:center;
-    border-radius:11px;
-    border:1px solid var(--line);
-    background:transparent;
-    color:#c6d2e2;
-    cursor:pointer;
-  }
-  .icon-btn:hover{background:#1e2b40;color:#fff}
-  .icon-btn svg{width:19px;height:19px}
-
-  main{
-    max-width:720px;
-    margin:0 auto;
-    padding:18px 16px 44px;
-    display:flex;
-    flex-direction:column;
-    gap:16px;
-  }
-
-  .auth{
-    max-width:420px;
-    margin:0 auto;
-    padding:38px 16px 44px;
-  }
-  .auth-card{padding:24px}
-  .auth-logo{width:66px;height:66px;margin:0 auto 16px}
   .auth-card h2{
     margin:0;
-    font-size:20px;
-    font-weight:700;
-    letter-spacing:-.3px;
     text-align:center;
+    font-size:23px;
+    font-weight:800;
+    letter-spacing:-.5px;
   }
   .auth-sub{
-    margin:7px 0 22px;
+    margin:8px 0 22px;
     font-size:12.5px;
-    line-height:1.55;
+    line-height:1.6;
     color:var(--muted);
     text-align:center;
   }
   .auth-msg{
-    min-height:16px;
-    margin:12px 0 0;
+    min-height:17px;
+    margin:13px 0 0;
     font-size:12.5px;
     line-height:1.5;
-    color:#ff9a92;
+    color:#fda4af;
+    text-align:center;
   }
   .auth-msg:empty{display:none}
-
-  .stats{display:flex;flex-direction:column;gap:12px}
-
-  .stat{
-    display:flex;
-    align-items:center;
-    gap:15px;
-    padding:18px;
-    background:var(--card);
-    border:1px solid var(--line-soft);
-    border-radius:16px;
-  }
-  .stat-ico{
-    width:48px;
-    height:48px;
-    flex:none;
-    border-radius:12px;
-    display:grid;
-    place-items:center;
-  }
-  .stat-ico svg{width:22px;height:22px}
-  .stat-ico.blue{color:var(--blue);background:rgba(59,157,255,.13)}
-  .stat-ico.green{color:var(--green);background:rgba(52,211,153,.12)}
-  .stat-ico.purple{color:var(--purple);background:rgba(167,139,250,.13)}
-  .stat-body{min-width:0}
-  .stat-label{
-    display:block;
+  .auth-foot{
+    margin:16px 0 0;
+    text-align:center;
     font-size:11px;
+    color:var(--dim);
+  }
+
+  .field{margin-bottom:15px}
+  .field > label{
+    display:block;
+    margin-bottom:8px;
+    font-size:10.5px;
     font-weight:700;
     letter-spacing:.1em;
     text-transform:uppercase;
     color:var(--label);
   }
-  .stat-value{
-    display:block;
-    margin-top:3px;
-    font-size:27px;
-    font-weight:700;
-    line-height:1.12;
-    letter-spacing:-.4px;
-    color:#fff;
-  }
-  .stat-value.text{
-    font-size:16px;
-    font-weight:650;
-    letter-spacing:0;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
-
-  .card{
-    background:var(--card);
-    border:1px solid var(--line-soft);
-    border-radius:16px;
-    padding:18px;
-  }
-  .card-head{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:12px;
-    padding-bottom:15px;
-    margin-bottom:17px;
-    border-bottom:1px solid var(--line-soft);
-  }
-  .card-head h2{
-    margin:0;
-    font-size:19px;
-    font-weight:700;
-    letter-spacing:-.3px;
-  }
-  .card-head p{
-    margin:4px 0 0;
-    font-size:12.5px;
-    line-height:1.5;
-    color:var(--muted);
-  }
-
-  .chip{
-    flex:none;
-    padding:4px 10px;
-    border-radius:999px;
-    border:1px solid rgba(59,157,255,.28);
-    background:rgba(59,157,255,.12);
-    color:#8ec5ff;
-    font-size:11.5px;
-    font-weight:700;
-    white-space:nowrap;
-  }
-
-  .field{margin-bottom:15px}
-  .field label{
-    display:block;
-    margin-bottom:8px;
-    font-size:11px;
-    font-weight:700;
-    letter-spacing:.08em;
-    text-transform:uppercase;
-    color:var(--label);
-  }
   .req{color:var(--red);margin-left:1px}
+
+  .input-wrap{position:relative;display:flex;align-items:center}
+  .input-wrap > svg{
+    position:absolute;
+    left:14px;
+    width:17px;height:17px;
+    color:#64748b;
+    pointer-events:none;
+    transition:color .25s;
+  }
+  .input-wrap:focus-within > svg{color:var(--cyan)}
 
   .field input{
     width:100%;
     height:50px;
-    padding:0 14px;
+    padding:0 14px 0 42px;
     font:inherit;
     font-size:14.5px;
     color:var(--text);
-    background:var(--input);
-    border:1px solid var(--line);
-    border-radius:12px;
+    background:rgba(2,6,23,.6);
+    border:1px solid var(--line-strong);
+    border-radius:13px;
+    transition:border-color .3s, box-shadow .3s, background .3s;
   }
-  .field input::placeholder{color:#5f7188}
+  .field input::placeholder{color:#4c5c74}
   .field input:focus{
     outline:none;
-    border-color:var(--blue);
-    box-shadow:0 0 0 3px rgba(59,157,255,.16);
+    border-color:rgba(34,211,238,.75);
+    background:rgba(2,6,23,.85);
+    box-shadow:0 0 0 4px rgba(34,211,238,.14), 0 0 22px -6px rgba(34,211,238,.55);
   }
   .field.bad input{
-    border-color:rgba(240,101,92,.85);
-    background:rgba(240,101,92,.06);
+    border-color:rgba(251,113,133,.8);
+    background:rgba(251,113,133,.06);
   }
-  .field.bad input:focus{box-shadow:0 0 0 3px rgba(240,101,92,.18)}
+  .field.bad input:focus{box-shadow:0 0 0 4px rgba(251,113,133,.16)}
   .field .hint{
     display:block;
     margin-top:6px;
@@ -267,41 +211,233 @@
     color:var(--dim);
   }
   .field .hint:empty{display:none}
-  .field.bad .hint{color:#ff9a92;font-weight:600}
+  .field.bad .hint{color:#fda4af;font-weight:600}
+
+  .eye{
+    position:absolute;
+    right:8px;
+    width:34px;height:34px;
+    display:grid;
+    place-items:center;
+    border:0;
+    border-radius:9px;
+    background:transparent;
+    color:#7c8ea8;
+    cursor:pointer;
+    transition:color .2s, background .2s;
+  }
+  .eye:hover{color:var(--cyan);background:rgba(34,211,238,.1)}
+  .eye svg{width:18px;height:18px}
+  .eye .eye-off{display:none}
+  .eye.on .eye-on{display:none}
+  .eye.on .eye-off{display:block}
+  .eye.on{color:var(--cyan)}
 
   .btn{
     display:inline-flex;
     align-items:center;
     justify-content:center;
-    gap:8px;
+    gap:9px;
     font:inherit;
     font-weight:700;
-    border-radius:12px;
+    border-radius:13px;
     border:1px solid transparent;
     cursor:pointer;
   }
-  .btn svg{width:19px;height:19px}
-  .btn:disabled{opacity:.6;cursor:default}
+  .btn svg{width:18px;height:18px}
+  .btn:disabled{cursor:default}
+
   .btn-primary{
+    position:relative;
     width:100%;
     height:52px;
+    margin-top:4px;
     font-size:15px;
-    color:#fff;
-    background:#2f8bff;
+    color:#04121c;
+    background:linear-gradient(135deg, #22d3ee 0%, #38bdf8 55%, #818cf8 100%);
+    box-shadow:0 14px 34px -14px rgba(34,211,238,.9);
+    transition:transform .18s, box-shadow .25s, filter .25s, background .3s;
   }
-  .btn-primary:hover:not(:disabled){background:#4a9cff}
+  .btn-primary:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.06);box-shadow:0 18px 40px -14px rgba(34,211,238,1)}
+  .btn-primary:active:not(:disabled){transform:translateY(0)}
+  .btn-primary:disabled{opacity:.75}
+
+  .spinner{display:none;width:19px;height:19px;border-radius:50%;border:2.5px solid rgba(4,18,28,.3);border-top-color:#04121c;animation:spin .7s linear infinite}
+  .check{display:none;width:22px;height:22px}
+  #authSubmit.busy .btn-label{display:none}
+  #authSubmit.busy .spinner{display:block}
+  #authSubmit.done{background:linear-gradient(135deg,#34d399,#10b981);box-shadow:0 14px 34px -14px rgba(52,211,153,.9)}
+  #authSubmit.done .btn-label{display:none}
+  #authSubmit.done .check{display:block;animation:pop .5s cubic-bezier(.34,1.56,.64,1) both}
+
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes pop{0%{transform:scale(.2) rotate(-25deg);opacity:0}60%{transform:scale(1.18) rotate(4deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+  @keyframes rise{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(3px)}30%,50%,70%{transform:translateX(-5px)}40%,60%{transform:translateX(5px)}}
+
+  /* ---------- app shell ---------- */
+  .layout{
+    position:relative;
+    z-index:2;
+    display:flex;
+    min-height:100vh;
+  }
+  #app:not([hidden]){animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both}
+
+  .sidebar{
+    width:262px;
+    flex:none;
+    padding:22px 16px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    border-right:1px solid var(--line);
+    background:rgba(2,6,23,.62);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow:auto;
+  }
+  .brand{display:flex;align-items:center;gap:11px;padding:4px 8px 18px}
+  .brand img{width:42px;height:42px;border-radius:12px;box-shadow:0 10px 24px -12px rgba(56,189,248,.8)}
+  .brand h1{margin:0;font-size:15px;font-weight:800;letter-spacing:-.2px;line-height:1.2}
+  .brand p{margin:2px 0 0;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan)}
+
+  .nav-label{margin:14px 10px 6px;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+  .nav-item{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    padding:10px 12px;
+    border-radius:11px;
+    border:1px solid transparent;
+    color:#cbd7e8;
+    font-size:13.5px;
+    font-weight:600;
+    text-decoration:none;
+    background:transparent;
+    cursor:pointer;
+    width:100%;
+    text-align:left;
+    font-family:inherit;
+    transition:background .2s, color .2s, border-color .2s;
+  }
+  .nav-item svg{width:17px;height:17px;color:#8ba0bd;flex:none;transition:color .2s}
+  .nav-item:hover{background:rgba(148,163,184,.1);color:#fff}
+  .nav-item:hover svg{color:var(--cyan)}
+  .nav-item.danger:hover{background:rgba(251,113,133,.12);color:#fda4af}
+  .nav-item.danger:hover svg{color:#fda4af}
+  .nav-sep{height:1px;background:var(--line);margin:12px 6px}
+  .side-note{margin:auto 10px 0;padding-top:16px;font-size:10.5px;line-height:1.6;color:var(--dim)}
+
+  .content{flex:1;min-width:0;display:flex;flex-direction:column}
+
+  .topbar{
+    position:sticky;
+    top:0;
+    z-index:20;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 18px;
+    border-bottom:1px solid var(--line);
+    background:rgba(2,6,23,.72);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+  }
+  .topbar h2{margin:0;font-size:15px;font-weight:700;letter-spacing:-.2px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .topbar .sub{display:block;font-size:11px;font-weight:500;color:var(--muted);letter-spacing:0}
+
+  .icon-btn{
+    width:40px;height:40px;
+    flex:none;
+    display:grid;
+    place-items:center;
+    border-radius:11px;
+    border:1px solid var(--line-strong);
+    background:rgba(148,163,184,.06);
+    color:#cbd7e8;
+    cursor:pointer;
+    transition:background .2s, color .2s, border-color .2s;
+  }
+  .icon-btn:hover{background:rgba(34,211,238,.12);color:#fff;border-color:rgba(34,211,238,.4)}
+  .icon-btn svg{width:19px;height:19px}
+  #menuBtn{display:none}
+
+  main{
+    flex:1;
+    width:100%;
+    max-width:940px;
+    margin:0 auto;
+    padding:22px 18px 46px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+
+  /* ---------- stats ---------- */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+  .stat{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:18px;
+    border-radius:18px;
+    background:var(--glass-soft);
+    border:1px solid var(--line);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    transition:transform .25s, border-color .25s;
+  }
+  .stat:hover{transform:translateY(-2px);border-color:var(--line-strong)}
+  .stat-ico{width:46px;height:46px;flex:none;border-radius:14px;display:grid;place-items:center}
+  .stat-ico svg{width:21px;height:21px}
+  .stat-ico.blue{color:var(--sky);background:rgba(56,189,248,.13);box-shadow:inset 0 0 0 1px rgba(56,189,248,.22)}
+  .stat-ico.green{color:var(--green);background:rgba(52,211,153,.12);box-shadow:inset 0 0 0 1px rgba(52,211,153,.22)}
+  .stat-ico.purple{color:var(--violet);background:rgba(167,139,250,.13);box-shadow:inset 0 0 0 1px rgba(167,139,250,.22)}
+  .stat-body{min-width:0}
+  .stat-label{display:block;font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--label)}
+  .stat-value{display:block;margin-top:4px;font-size:26px;font-weight:800;line-height:1.1;letter-spacing:-.6px;color:#fff}
+  .stat-value.text{font-size:15px;font-weight:650;letter-spacing:-.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  /* ---------- cards ---------- */
+  .card{
+    background:var(--glass-soft);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:20px;
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+  }
+  .card-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    padding-bottom:15px;
+    margin-bottom:17px;
+    border-bottom:1px solid var(--line);
+  }
+  .card-head h2{margin:0;font-size:18px;font-weight:700;letter-spacing:-.3px}
+  .card-head p{margin:4px 0 0;font-size:12.5px;line-height:1.5;color:var(--muted)}
+
+  .chip{
+    flex:none;
+    padding:5px 12px;
+    border-radius:999px;
+    border:1px solid rgba(34,211,238,.3);
+    background:rgba(34,211,238,.1);
+    color:#7de8f7;
+    font-size:11.5px;
+    font-weight:700;
+    white-space:nowrap;
+  }
 
   .search-row{position:relative;margin-bottom:6px}
-  .search-row svg{
-    position:absolute;
-    left:13px;
-    top:50%;
-    transform:translateY(-50%);
-    width:17px;
-    height:17px;
-    color:#6d8099;
-    pointer-events:none;
-  }
+  .search-row svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:#64748b;pointer-events:none}
   .search{
     width:100%;
     height:44px;
@@ -309,26 +445,42 @@
     font:inherit;
     font-size:13.5px;
     color:var(--text);
-    background:var(--input);
-    border:1px solid var(--line);
-    border-radius:11px;
+    background:rgba(2,6,23,.55);
+    border:1px solid var(--line-strong);
+    border-radius:12px;
+    transition:border-color .3s, box-shadow .3s;
   }
-  .search::placeholder{color:#5f7188}
-  .search:focus{outline:none;border-color:var(--blue)}
+  .search::placeholder{color:#4c5c74}
+  .search:focus{outline:none;border-color:rgba(34,211,238,.7);box-shadow:0 0 0 4px rgba(34,211,238,.12)}
 
+  /* ---------- attendance list (table-like) ---------- */
+  .rec-head{
+    display:grid;
+    grid-template-columns:1fr 92px 44px;
+    gap:10px;
+    padding:10px 8px;
+    margin-top:6px;
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--dim);
+    border-bottom:1px solid var(--line);
+  }
   .records{list-style:none;margin:0;padding:0}
   .record{
-    display:flex;
+    display:grid;
+    grid-template-columns:1fr 92px 44px;
+    gap:10px;
     align-items:center;
-    gap:11px;
-    padding:13px 2px;
-    border-bottom:1px solid var(--line-soft);
+    padding:12px 8px;
+    border-bottom:1px solid var(--line);
+    transition:background .2s;
   }
-  .record:last-child{border-bottom:none}
-  .rec-main{flex:1;min-width:0}
+  .record:hover{background:rgba(148,163,184,.05)}
+  .rec-main{min-width:0;display:flex;flex-direction:column;gap:5px}
   .rec-name{
-    display:block;
-    font-size:14.5px;
+    font-size:14px;
     font-weight:650;
     color:#fff;
     white-space:nowrap;
@@ -336,64 +488,45 @@
     text-overflow:ellipsis;
   }
   .pid{
-    display:inline-block;
-    margin-top:5px;
+    align-self:flex-start;
     padding:2px 8px;
     border-radius:6px;
-    border:1px solid rgba(59,157,255,.24);
-    background:rgba(59,157,255,.11);
-    color:#7cc0ff;
+    border:1px solid rgba(56,189,248,.24);
+    background:rgba(56,189,248,.1);
+    color:#8fd0ff;
     font-family:ui-monospace, "Cascadia Mono", Consolas, monospace;
     font-size:11.5px;
     font-weight:600;
   }
-  .rec-time{
-    flex:none;
-    font-size:12px;
-    color:var(--muted);
-    font-variant-numeric:tabular-nums;
-  }
+  .rec-time{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
   .icon-x{
-    flex:none;
-    width:34px;
-    height:34px;
+    width:34px;height:34px;
     display:grid;
     place-items:center;
-    border-radius:9px;
-    border:1px solid var(--line);
+    border-radius:10px;
+    border:1px solid var(--line-strong);
     background:transparent;
-    color:#8497b0;
+    color:#94a3b8;
     cursor:pointer;
+    justify-self:end;
+    transition:color .2s, border-color .2s, background .2s;
   }
   .icon-x svg{width:15px;height:15px}
-  .icon-x:hover{color:#ff9a92;border-color:rgba(240,101,92,.5);background:rgba(240,101,92,.08)}
+  .icon-x:hover{color:#fda4af;border-color:rgba(251,113,133,.5);background:rgba(251,113,133,.1)}
 
-  .empty{
-    padding:30px 14px;
-    text-align:center;
-    color:var(--muted);
-    font-size:13px;
-    line-height:1.55;
-  }
-  .empty strong{
-    display:block;
-    margin-bottom:5px;
-    color:#dbe4f0;
-    font-size:14.5px;
-  }
+  .empty{padding:32px 14px;text-align:center;color:var(--muted);font-size:13px;line-height:1.55;grid-column:1 / -1}
+  .empty strong{display:block;margin-bottom:5px;color:#dbe4f0;font-size:14.5px}
 
-  @keyframes flash{
-    0%{background:rgba(52,211,153,.14)}
-    100%{background:transparent}
-  }
+  @keyframes flash{0%{background:rgba(52,211,153,.16)}100%{background:transparent}}
   .record.flash{animation:flash 1.6s ease-out}
 
-  details.roster{margin-top:0}
+  /* ---------- roster ---------- */
+  details.roster{padding:0;overflow:hidden}
   details.roster > summary{
     display:flex;
     align-items:center;
     gap:10px;
-    padding:16px 18px;
+    padding:16px 20px;
     cursor:pointer;
     list-style:none;
     font-size:14px;
@@ -402,36 +535,27 @@
   }
   details.roster > summary::-webkit-details-marker{display:none}
   details.roster > summary .sum-label{flex:1}
-  details.roster > summary .caret{
-    width:16px;
-    height:16px;
-    color:#7d8fa8;
-    transition:transform .18s;
-  }
+  details.roster > summary .caret{width:16px;height:16px;color:#8ba0bd;transition:transform .2s}
   details.roster[open] > summary .caret{transform:rotate(180deg)}
-  details.roster[open] > summary{border-bottom:1px solid var(--line-soft)}
-  .roster-body{padding:0 12px 8px}
-  .roster-list{list-style:none;margin:0;padding:0;max-height:280px;overflow:auto}
+  details.roster[open] > summary{border-bottom:1px solid var(--line)}
+  .roster-body{padding:4px 14px 10px}
+  .roster-list{list-style:none;margin:0;padding:0;max-height:300px;overflow:auto}
   .roster-list li{
     display:flex;
     align-items:center;
     gap:10px;
-    padding:11px 6px;
-    border-bottom:1px solid var(--line-soft);
+    padding:11px 8px;
+    border-bottom:1px solid var(--line);
     font-size:13.5px;
   }
   .roster-list li:last-child{border-bottom:none}
   .roster-list .who{flex:1;min-width:0;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
   .roster-list .nm{color:#e8eef7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .roster-empty{padding:14px 6px;color:var(--muted);font-size:12.5px}
+  .roster-empty{padding:14px 8px;color:var(--muted);font-size:12.5px}
 
-  .foot{
-    padding:2px 6px;
-    font-size:11px;
-    color:#5d6f88;
-    text-align:center;
-  }
+  .foot{padding:4px 6px;font-size:11px;color:#55677f;text-align:center}
 
+  /* ---------- settings sheet ---------- */
   .backdrop{
     position:fixed;
     inset:0;
@@ -440,26 +564,25 @@
     align-items:flex-end;
     justify-content:center;
     padding:0;
-    background:rgba(4,9,18,.75);
+    background:rgba(2,6,23,.7);
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
   }
   .sheet{
     width:100%;
     max-width:440px;
-    background:var(--sheet);
-    border:1px solid var(--line);
-    border-radius:20px 20px 0 0;
+    background:rgba(15,23,42,.94);
+    border:1px solid var(--line-strong);
+    border-radius:22px 22px 0 0;
     padding:18px 18px calc(18px + env(safe-area-inset-bottom));
+    backdrop-filter:blur(24px);
+    -webkit-backdrop-filter:blur(24px);
   }
   @media (min-width:600px){
     .backdrop{align-items:center;padding:24px}
-    .sheet{border-radius:16px}
+    .sheet{border-radius:20px}
   }
-  .sheet-head{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    margin-bottom:14px;
-  }
+  .sheet-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
   .sheet-head h2{margin:0;font-size:16.5px;font-weight:700}
   .sheet-head .icon-btn{margin-left:auto;width:36px;height:36px}
   .sheet-action{
@@ -475,25 +598,22 @@
     text-align:left;
     text-decoration:none;
     color:#e8eef7;
-    background:var(--card);
-    border:1px solid var(--line-soft);
-    border-radius:12px;
+    background:rgba(148,163,184,.07);
+    border:1px solid var(--line);
+    border-radius:13px;
     cursor:pointer;
+    transition:background .2s, border-color .2s, transform .15s;
   }
-  .sheet-action:hover{background:#1e2b40}
+  .sheet-action:hover{background:rgba(34,211,238,.1);border-color:rgba(34,211,238,.35);transform:translateY(-1px)}
   .sheet-action svg{width:18px;height:18px;flex:none;color:#9fb2ca}
-  .sheet-action.danger{color:#ff9a92}
-  .sheet-action.danger svg{color:#ff9a92}
-  .sheet-action.danger:hover{background:rgba(240,101,92,.08);border-color:rgba(240,101,92,.35)}
-  .sheet-divider{height:1px;background:var(--line-soft);margin:14px 0}
-  .sheet-note{
-    margin:8px 2px 0;
-    font-size:11px;
-    line-height:1.6;
-    color:var(--dim);
-  }
+  .sheet-action.danger{color:#fda4af}
+  .sheet-action.danger svg{color:#fda4af}
+  .sheet-action.danger:hover{background:rgba(251,113,133,.1);border-color:rgba(251,113,133,.4)}
+  .sheet-divider{height:1px;background:var(--line);margin:14px 0}
+  .sheet-note{margin:8px 2px 0;font-size:11px;line-height:1.6;color:var(--dim)}
   .sheet-note strong{color:#c6d2e2;font-weight:600}
 
+  /* ---------- toasts ---------- */
   #toasts{
     position:fixed;
     right:16px;
@@ -506,38 +626,72 @@
   }
   .toast{
     padding:12px 15px;
-    border-radius:11px;
-    background:var(--card);
-    border:1px solid var(--line);
+    border-radius:12px;
+    background:rgba(15,23,42,.94);
+    border:1px solid var(--line-strong);
     border-left:4px solid var(--green);
     color:#e8eef7;
     font-size:13px;
     line-height:1.45;
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 40px -18px rgba(0,0,0,.9);
+    animation:rise .3s ease both;
   }
   .toast.error{border-left-color:var(--red)}
   .toast.fade{opacity:0;transition:opacity .25s}
 
   .print-only{display:none}
 
+  /* ---------- responsive ---------- */
+  @media (max-width:1000px){
+    #menuBtn{display:grid}
+    .sidebar{
+      position:fixed;
+      inset:0 auto 0 0;
+      z-index:50;
+      transform:translateX(-105%);
+      transition:transform .3s cubic-bezier(.22,1,.36,1);
+      background:rgba(2,6,23,.96);
+      box-shadow:24px 0 60px -24px rgba(0,0,0,.9);
+    }
+    .sidebar.open{transform:none}
+    .scrim{
+      position:fixed;
+      inset:0;
+      z-index:45;
+      background:rgba(2,6,23,.6);
+      backdrop-filter:blur(3px);
+      -webkit-backdrop-filter:blur(3px);
+    }
+    main{padding:18px 14px 40px}
+    .rec-head,.record{grid-template-columns:1fr 78px 44px}
+  }
+  @media (min-width:1001px){.scrim{display:none}}
+
+  @media (prefers-reduced-motion:reduce){
+    .orb{animation:none}
+    *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+  }
+
+  /* ---------- print ---------- */
   @media print{
     body{background:#fff !important;color:#111 !important}
-    .appbar,.stats,.form-card,details.roster,.search-row,.backdrop,.foot,.icon-x,#toasts,#authScreen{display:none !important}
+    .orbs,.sidebar,.topbar,.stats,.form-card,details.roster,.search-row,.backdrop,.foot,.icon-x,#toasts,#authScreen,.rec-head,.scrim{display:none !important}
     main{max-width:none;padding:0;gap:0}
     .card{
       background:#fff !important;
       border:1px solid #c7ced9 !important;
       color:#111 !important;
       border-radius:0 !important;
+      backdrop-filter:none !important;
     }
     .card-head{border-bottom:1px solid #dfe3ea !important}
     .card-head h2,.rec-name,.empty strong{color:#111 !important}
     .card-head p,.rec-time,.empty{color:#4a5568 !important}
-    .pid{
-      background:#eef1f6 !important;
-      border-color:#d5dae3 !important;
-      color:#334155 !important;
-    }
-    .record{border-bottom:1px solid #e5e7eb !important}
+    .chip{display:none !important}
+    .pid{background:#eef1f6 !important;border-color:#d5dae3 !important;color:#334155 !important}
+    .record{border-bottom:1px solid #e5e7eb !important;grid-template-columns:1fr 90px}
     .record.flash{animation:none}
     .print-only{display:block;margin:0 0 10px;font-size:11px;color:#4a5568}
   }
@@ -545,167 +699,298 @@
 </head>
 <body>
 
-<header class="appbar">
-  <div class="appbar-inner">
-    <img class="logo" src="assets/citsa-logo.png" alt="" width="46" height="46">
-    <div class="app-id">
-      <h1>Information Technology</h1>
-      <p>Administrator Panel</p>
-    </div>
-    <button class="icon-btn" id="settingsBtn" type="button" aria-label="Settings" aria-expanded="false" hidden>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="3.1"/>
-        <path d="M19.4 14.6a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.11-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.56-1.11 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9a1.7 1.7 0 0 0 1.56 1.03H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5.57Z"/>
-      </svg>
-    </button>
-  </div>
-</header>
+<div class="orbs" aria-hidden="true">
+  <div class="orb a"></div>
+  <div class="orb b"></div>
+  <div class="orb c"></div>
+</div>
 
-<section class="auth" id="authScreen" hidden>
-  <div class="card auth-card">
-    <img class="logo auth-logo" src="assets/citsa-logo.png" alt="" width="66" height="66">
+<section class="auth" id="authScreen">
+  <div class="glass auth-card" id="authCard">
+    <img class="auth-logo" src="assets/citsa-logo.png" alt="" width="64" height="64">
+    <p class="eyebrow">Information Technology Department</p>
     <h2>Administrator sign in</h2>
     <p class="auth-sub">Attendance records are stored in the department database and only open to the administrator account.</p>
 
     <form id="authForm" novalidate>
       <div class="field">
         <label for="authEmail">Email</label>
-        <input id="authEmail" type="email" autocomplete="username" spellcheck="false" placeholder="you@example.com">
+        <div class="input-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="5" width="18" height="14" rx="3"/>
+            <path d="m3.6 7.2 7.3 5.1a2 2 0 0 0 2.2 0l7.3-5.1"/>
+          </svg>
+          <input id="authEmail" type="email" autocomplete="username" spellcheck="false" placeholder="you@example.com">
+        </div>
       </div>
+
       <div class="field">
         <label for="authPassword">Password</label>
-        <input id="authPassword" type="password" autocomplete="current-password" placeholder="Password">
+        <div class="input-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="4" y="10" width="16" height="10.5" rx="3"/>
+            <path d="M8 10V7.6a4 4 0 0 1 8 0V10"/>
+          </svg>
+          <input id="authPassword" type="password" autocomplete="current-password" placeholder="Password">
+          <button type="button" class="eye" id="togglePw" aria-label="Show password" aria-pressed="false">
+            <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 3l18 18"/>
+              <path d="M10.6 6.1A9.9 9.9 0 0 1 12 6c6 0 9.5 6 9.5 6a17 17 0 0 1-3.4 4"/>
+              <path d="M6.2 7.9A16.7 16.7 0 0 0 2.5 12S6 18 12 18a9.8 9.8 0 0 0 3.6-.7"/>
+              <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>
+            </svg>
+          </button>
+        </div>
       </div>
-      <button type="submit" class="btn btn-primary" id="authSubmit">Sign in</button>
+
+      <button type="submit" class="btn btn-primary" id="authSubmit">
+        <span class="btn-label">Sign in</span>
+        <span class="spinner" aria-hidden="true"></span>
+        <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 6 9 17l-5-5"/>
+        </svg>
+      </button>
     </form>
 
     <p class="auth-msg" id="authMsg" role="status"></p>
+    <p class="auth-foot">Protected by department database access control</p>
   </div>
 </section>
 
-<main id="app" hidden>
+<div class="layout" id="app" hidden>
 
-  <section class="stats" aria-label="Summary">
-    <article class="stat">
-      <div class="stat-ico blue" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M16 19.5v-1.4a4 4 0 0 0-4-4H6.5a4 4 0 0 0-4 4v1.4"/>
-          <circle cx="9.2" cy="7.4" r="3.3"/>
-          <path d="M21.5 19.5v-1.4a4 4 0 0 0-3-3.87"/>
-          <path d="M16.3 4.23a3.3 3.3 0 0 1 0 6.34"/>
-        </svg>
-      </div>
-      <div class="stat-body">
-        <span class="stat-label">Total registered</span>
-        <strong class="stat-value" id="statStudents">0</strong>
-      </div>
-    </article>
+  <div class="scrim" id="scrim" hidden></div>
 
-    <article class="stat">
-      <div class="stat-ico green" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="9"/>
-          <path d="M8.4 12.4l2.5 2.5 4.8-5.2"/>
-        </svg>
-      </div>
-      <div class="stat-body">
-        <span class="stat-label">Marked present</span>
-        <strong class="stat-value" id="statMarked">0</strong>
-      </div>
-    </article>
-
-    <article class="stat">
-      <div class="stat-ico purple" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3.2 12a8.8 8.8 0 1 0 2.9-6.5"/>
-          <path d="M3 4.2v5h5"/>
-          <path d="M12 7.8v4.7l3.1 1.8"/>
-        </svg>
-      </div>
-      <div class="stat-body">
-        <span class="stat-label">Last activity</span>
-        <strong class="stat-value text" id="statLast">No activity yet</strong>
-      </div>
-    </article>
-  </section>
-
-  <section class="card form-card" aria-labelledby="formTitle">
-    <div class="card-head">
-      <h2 id="formTitle">Register student</h2>
-    </div>
-
-    <form id="entryForm" novalidate autocomplete="off">
-      <div class="field" id="fieldName">
-        <label for="studentName">Full name <span class="req">*</span></label>
-        <input id="studentName" name="studentName" type="text" placeholder="Amina Yusuf"
-               maxlength="60" autocapitalize="words" spellcheck="false">
-        <span class="hint" id="hintName"></span>
-      </div>
-
-      <div class="field" id="fieldId">
-        <label for="studentId">Student ID <span class="req">*</span></label>
-        <input id="studentId" name="studentId" type="text" placeholder="PS/ITC/25/0001"
-               maxlength="30" spellcheck="false">
-        <span class="hint" id="hintId">Format: PS/ITC/25/0000</span>
-      </div>
-
-      <div class="field" id="fieldDate">
-        <label for="sessionDate">Date <span class="req">*</span></label>
-        <input id="sessionDate" name="sessionDate" type="date">
-        <span class="hint" id="hintDate"></span>
-      </div>
-
-      <button type="submit" class="btn btn-primary" id="submitBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M20 6 9 17l-5-5"/>
-        </svg>
-        <span id="submitLabel">Mark present</span>
-      </button>
-    </form>
-  </section>
-
-  <section class="card list-card" aria-labelledby="registerTitle">
-    <div class="card-head">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <img src="assets/citsa-logo.png" alt="" width="42" height="42">
       <div>
-        <h2 id="registerTitle">Attendance</h2>
-        <p id="sessionLabel"></p>
+        <h1>Information Technology</h1>
+        <p>Admin panel</p>
       </div>
-      <span class="chip" id="countChip">0 marked</span>
     </div>
 
-    <div class="print-only">Information Technology attendance register</div>
-
-    <div class="search-row">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true">
-        <circle cx="11" cy="11" r="7"/>
-        <path d="M20 20l-3.6-3.6"/>
+    <p class="nav-label">Overview</p>
+    <a class="nav-item" href="#statsSection">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/>
+        <rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/>
       </svg>
-      <input id="search" class="search" type="search" placeholder="Search name or ID">
-    </div>
+      Dashboard
+    </a>
 
-    <ul class="records" id="records"></ul>
-  </section>
-
-  <details class="card roster" id="rosterBox">
-    <summary>
-      <span class="sum-label">Registered students (<span id="rosterCount">0</span>)</span>
-      <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M6 9l6 6 6-6"/>
+    <p class="nav-label">Register</p>
+    <a class="nav-item" href="#formTitle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="9.5" cy="8" r="3.4"/><path d="M3 19.5v-1.2a5 5 0 0 1 5-5h3"/>
+        <path d="M17.5 13v6M14.5 16h6"/>
       </svg>
-    </summary>
-    <div class="roster-body">
-      <ul class="roster-list" id="rosterList"></ul>
-    </div>
-  </details>
+      Register student
+    </a>
+    <a class="nav-item" href="#registerTitle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3.5" y="4.5" width="17" height="16" rx="3"/><path d="M8 3v3M16 3v3M3.5 9.5h17"/>
+        <path d="M8.6 14.6l2 2 3.8-4"/>
+      </svg>
+      Attendance
+    </a>
+    <button class="nav-item" id="rosterNav" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M16 19.5v-1.4a4 4 0 0 0-4-4H6.5a4 4 0 0 0-4 4v1.4"/><circle cx="9.2" cy="7.4" r="3.3"/>
+        <path d="M21.5 19.5v-1.4a4 4 0 0 0-3-3.87"/>
+      </svg>
+      Student roster
+    </button>
 
-  <div class="foot">Information Technology Department</div>
+    <div class="nav-sep"></div>
 
-</main>
+    <p class="nav-label">Actions</p>
+    <button class="nav-item" id="sideTools" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 7h16M4 12h16M4 17h10"/>
+      </svg>
+      Export, print &amp; reset
+    </button>
+    <a class="nav-item" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M14 4h6v6"/><path d="M20 4l-9 9"/>
+        <path d="M19 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4"/>
+      </svg>
+      Student check-in page
+    </a>
+    <button class="nav-item danger" id="sideSignOut" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 8l-4 4 4 4"/><path d="M6 12h9"/>
+      </svg>
+      Sign out
+    </button>
+
+    <p class="side-note">Records are stored in the department database. Export a CSV to keep a copy.</p>
+  </aside>
+
+  <div class="content">
+    <header class="topbar">
+      <button class="icon-btn" id="menuBtn" type="button" aria-label="Open menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+      <h2>Administrator Panel<span class="sub">Information Technology Department</span></h2>
+      <button class="icon-btn" id="settingsBtn" type="button" aria-label="Settings" aria-expanded="false" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3.1"/>
+          <path d="M19.4 14.6a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.11-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.56-1.11 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9a1.7 1.7 0 0 0 1.56 1.03H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5.57Z"/>
+        </svg>
+      </button>
+    </header>
+
+    <main>
+      <section class="stats" id="statsSection" aria-label="Summary">
+        <article class="stat">
+          <div class="stat-ico blue" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 19.5v-1.4a4 4 0 0 0-4-4H6.5a4 4 0 0 0-4 4v1.4"/>
+              <circle cx="9.2" cy="7.4" r="3.3"/>
+              <path d="M21.5 19.5v-1.4a4 4 0 0 0-3-3.87"/>
+              <path d="M16.3 4.23a3.3 3.3 0 0 1 0 6.34"/>
+            </svg>
+          </div>
+          <div class="stat-body">
+            <span class="stat-label">Total registered</span>
+            <strong class="stat-value" id="statStudents">0</strong>
+          </div>
+        </article>
+
+        <article class="stat">
+          <div class="stat-ico green" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M8.4 12.4l2.5 2.5 4.8-5.2"/>
+            </svg>
+          </div>
+          <div class="stat-body">
+            <span class="stat-label">Marked present</span>
+            <strong class="stat-value" id="statMarked">0</strong>
+          </div>
+        </article>
+
+        <article class="stat">
+          <div class="stat-ico purple" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3.2 12a8.8 8.8 0 1 0 2.9-6.5"/>
+              <path d="M3 4.2v5h5"/>
+              <path d="M12 7.8v4.7l3.1 1.8"/>
+            </svg>
+          </div>
+          <div class="stat-body">
+            <span class="stat-label">Last activity</span>
+            <strong class="stat-value text" id="statLast">No activity yet</strong>
+          </div>
+        </article>
+      </section>
+
+      <section class="card form-card" aria-labelledby="formTitle">
+        <div class="card-head">
+          <h2 id="formTitle">Register student</h2>
+        </div>
+
+        <form id="entryForm" novalidate autocomplete="off">
+          <div class="field" id="fieldName">
+            <label for="studentName">Full name <span class="req">*</span></label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="8" r="3.6"/><path d="M4.5 20v-1.2a5 5 0 0 1 5-5h5a5 5 0 0 1 5 5V20"/>
+              </svg>
+              <input id="studentName" name="studentName" type="text" placeholder="Amina Yusuf"
+                     maxlength="60" autocapitalize="words" spellcheck="false">
+            </div>
+            <span class="hint" id="hintName"></span>
+          </div>
+
+          <div class="field" id="fieldId">
+            <label for="studentId">Student ID <span class="req">*</span></label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="8.6" cy="11" r="2.1"/>
+                <path d="M5.6 16.4a3.4 3.4 0 0 1 6 0M14 10h4M14 13.5h3"/>
+              </svg>
+              <input id="studentId" name="studentId" type="text" placeholder="PS/ITC/25/0001"
+                     maxlength="30" spellcheck="false">
+            </div>
+            <span class="hint" id="hintId">Format: PS/ITC/25/0000</span>
+          </div>
+
+          <div class="field" id="fieldDate">
+            <label for="sessionDate">Date <span class="req">*</span></label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3.5" y="4.5" width="17" height="16" rx="3"/><path d="M8 3v3M16 3v3M3.5 9.5h17"/>
+              </svg>
+              <input id="sessionDate" name="sessionDate" type="date">
+            </div>
+            <span class="hint" id="hintDate"></span>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="submitBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20 6 9 17l-5-5"/>
+            </svg>
+            <span id="submitLabel">Mark present</span>
+          </button>
+        </form>
+      </section>
+
+      <section class="card list-card" aria-labelledby="registerTitle">
+        <div class="card-head">
+          <div>
+            <h2 id="registerTitle">Attendance</h2>
+            <p id="sessionLabel"></p>
+          </div>
+          <span class="chip" id="countChip">0 marked</span>
+        </div>
+
+        <div class="print-only">Information Technology attendance register</div>
+
+        <div class="search-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="M20 20l-3.6-3.6"/>
+          </svg>
+          <input id="search" class="search" type="search" placeholder="Search name or ID">
+        </div>
+
+        <div class="rec-head" aria-hidden="true">
+          <span>Student</span><span>Marked at</span><span></span>
+        </div>
+
+        <ul class="records" id="records"></ul>
+      </section>
+
+      <details class="card roster" id="rosterBox">
+        <summary>
+          <span class="sum-label">Registered students (<span id="rosterCount">0</span>)</span>
+          <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </summary>
+        <div class="roster-body">
+          <ul class="roster-list" id="rosterList"></ul>
+        </div>
+      </details>
+
+      <div class="foot">Information Technology Department</div>
+    </main>
+  </div>
+</div>
 
 <div class="backdrop" id="sheetBackdrop" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
     <div class="sheet-head">
-      <h2 id="sheetTitle">Settings</h2>
+      <h2 id="sheetTitle">Tools</h2>
       <button class="icon-btn" id="sheetClose" type="button" aria-label="Close settings">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
           <path d="M6 6l12 12M18 6L6 18"/>
@@ -715,27 +1000,21 @@
 
     <button class="sheet-action" id="exportBtn" type="button">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M12 3.5v10"/>
-        <path d="M8 10l4 4 4-4"/>
-        <path d="M4 20h16"/>
+        <path d="M12 3.5v10"/><path d="M8 10l4 4 4-4"/><path d="M4 20h16"/>
       </svg>
       Export all records (CSV)
     </button>
 
     <button class="sheet-action" id="printBtn" type="button">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M7 8V4h10v4"/>
-        <rect x="4" y="8" width="16" height="8.5" rx="2"/>
-        <path d="M7 16.5h10V21H7z"/>
+        <path d="M7 8V4h10v4"/><rect x="4" y="8" width="16" height="8.5" rx="2"/><path d="M7 16.5h10V21H7z"/>
       </svg>
       Print this day's register
     </button>
 
     <button class="sheet-action danger" id="resetBtn" type="button">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M4 7h16"/>
-        <path d="M9.5 7V4.8h5V7"/>
-        <path d="M6.4 7l.9 13h9.4l.9-13"/>
+        <path d="M4 7h16"/><path d="M9.5 7V4.8h5V7"/><path d="M6.4 7l.9 13h9.4l.9-13"/>
       </svg>
       Reset all data
     </button>
@@ -744,8 +1023,7 @@
 
     <a class="sheet-action" href="index.html">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M14 4h6v6"/>
-        <path d="M20 4l-9 9"/>
+        <path d="M14 4h6v6"/><path d="M20 4l-9 9"/>
         <path d="M19 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4"/>
       </svg>
       Student check-in page
@@ -753,9 +1031,7 @@
 
     <button class="sheet-action" id="signOutBtn" type="button">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/>
-        <path d="M10 8l-4 4 4 4"/>
-        <path d="M6 12h9"/>
+        <path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 8l-4 4 4 4"/><path d="M6 12h9"/>
       </svg>
       Sign out
     </button>
@@ -794,11 +1070,13 @@
   var els = {
     app: $("#app"),
     authScreen: $("#authScreen"),
+    authCard: $("#authCard"),
     authForm: $("#authForm"),
     authEmail: $("#authEmail"),
     authPassword: $("#authPassword"),
     authSubmit: $("#authSubmit"),
     authMsg: $("#authMsg"),
+    togglePw: $("#togglePw"),
     form: $("#entryForm"),
     name: $("#studentName"),
     id: $("#studentId"),
@@ -818,6 +1096,7 @@
     statLast: $("#statLast"),
     rosterCount: $("#rosterCount"),
     rosterList: $("#rosterList"),
+    rosterBox: $("#rosterBox"),
     toasts: $("#toasts"),
     sheetBackdrop: $("#sheetBackdrop"),
     settingsBtn: $("#settingsBtn"),
@@ -825,7 +1104,10 @@
     submitBtn: $("#submitBtn"),
     submitLabel: $("#submitLabel"),
     whoami: $("#whoami"),
-    signOutBtn: $("#signOutBtn")
+    signOutBtn: $("#signOutBtn"),
+    sidebar: $("#sidebar"),
+    menuBtn: $("#menuBtn"),
+    scrim: $("#scrim")
   };
 
   var db = null;
@@ -960,6 +1242,28 @@
     els.submitLabel.textContent = on ? "Saving..." : "Mark present";
   }
 
+  function setAuthBusy(on) {
+    els.authSubmit.disabled = on;
+    els.authSubmit.classList.toggle("busy", on);
+  }
+
+  function resetAuthButton() {
+    els.authSubmit.classList.remove("busy", "done");
+  }
+
+  function authFailed() {
+    resetAuthButton();
+    els.authSubmit.disabled = false;
+    els.authCard.classList.remove("shake");
+    void els.authCard.offsetWidth;
+    els.authCard.classList.add("shake");
+  }
+
+  function authSucceeded() {
+    els.authSubmit.classList.remove("busy");
+    els.authSubmit.classList.add("done");
+  }
+
   function dbMessage(error) {
     if (!error) return "Something went wrong. Try again.";
     if (error.code === "23505") return "That student is already registered.";
@@ -984,7 +1288,17 @@
     els.authScreen.hidden = false;
     els.app.hidden = true;
     els.settingsBtn.hidden = true;
+    closeMenu();
+    resetAuthButton();
+    els.authSubmit.disabled = false;
     if (message) els.authMsg.textContent = message;
+  }
+
+  function closeMenu() {
+    if (!els.sidebar) return;
+    els.sidebar.classList.remove("open");
+    if (els.scrim) els.scrim.hidden = true;
+    els.menuBtn.setAttribute("aria-expanded", "false");
   }
 
   async function fetchStudents() {
@@ -1060,6 +1374,7 @@
     els.authScreen.hidden = true;
     els.app.hidden = false;
     els.settingsBtn.hidden = false;
+    resetAuthButton();
     await refresh();
   }
 
@@ -1275,7 +1590,7 @@
     els.sheetBackdrop.hidden = true;
     els.settingsBtn.setAttribute("aria-expanded", "false");
     document.body.style.overflow = "";
-    els.settingsBtn.focus();
+    if (!els.app.hidden) els.settingsBtn.focus();
   }
 
   els.form.addEventListener("submit", function (e) {
@@ -1350,6 +1665,7 @@
   });
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape" && !els.sheetBackdrop.hidden) closeSheet();
+    else if (e.key === "Escape") closeMenu();
   });
 
   $("#printBtn").addEventListener("click", function () {
@@ -1429,6 +1745,7 @@
     toast("Exported " + result.data.length + " records.", "ok");
   });
 
+  /* ---------- sign in with loading + success animation ---------- */
   els.authForm.addEventListener("submit", async function (e) {
     e.preventDefault();
 
@@ -1437,25 +1754,66 @@
 
     if (!email || !password) {
       els.authMsg.textContent = "Enter your email and password.";
+      authFailed();
       return;
     }
 
-    els.authSubmit.disabled = true;
-    els.authSubmit.textContent = "Signing in...";
+    setAuthBusy(true);
     els.authMsg.textContent = "";
 
     var result = await db.auth.signInWithPassword({ email: email, password: password });
 
-    els.authSubmit.disabled = false;
-    els.authSubmit.textContent = "Sign in";
-
     if (result.error) {
       els.authMsg.textContent = result.error.message;
+      authFailed();
       return;
     }
 
     els.authPassword.value = "";
+    authSucceeded();
+    await new Promise(function (r) { setTimeout(r, 650); });
     await enterApp();
+  });
+
+  /* ---------- password visibility toggle ---------- */
+  els.togglePw.addEventListener("click", function () {
+    var show = els.authPassword.type === "password";
+    els.authPassword.type = show ? "text" : "password";
+    els.togglePw.classList.toggle("on", show);
+    els.togglePw.setAttribute("aria-pressed", String(show));
+    els.togglePw.setAttribute("aria-label", show ? "Hide password" : "Show password");
+    els.authPassword.focus();
+  });
+
+  /* ---------- sidebar ---------- */
+  els.menuBtn.addEventListener("click", function () {
+    var open = !els.sidebar.classList.contains("open");
+    els.sidebar.classList.toggle("open", open);
+    els.scrim.hidden = !open;
+    els.menuBtn.setAttribute("aria-expanded", String(open));
+  });
+
+  els.scrim.addEventListener("click", closeMenu);
+
+  els.sidebar.addEventListener("click", function (e) {
+    var item = e.target.closest("a.nav-item");
+    if (item) closeMenu();
+  });
+
+  $("#sideTools").addEventListener("click", function () {
+    closeMenu();
+    openSheet();
+  });
+
+  $("#sideSignOut").addEventListener("click", function () {
+    closeMenu();
+    els.signOutBtn.click();
+  });
+
+  $("#rosterNav").addEventListener("click", function () {
+    closeMenu();
+    els.rosterBox.open = true;
+    els.rosterBox.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
   els.date.value = isoDate(new Date());
