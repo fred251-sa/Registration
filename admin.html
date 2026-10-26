@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0a1322">
+<link rel="icon" href="assets/citsa-logo.png">
+<title>Information Technology: Administrator Panel</title>
+<style>
+  :root{
+    color-scheme: dark;
+
+    --bg:#0a1322;
+    --bar:#152238;
+    --card:#1a2436;
+    --sheet:#141f33;
+    --input:#0e1929;
+    --line:#2a3850;
+    --line-soft:#233045;
+
+    --text:#f2f6fc;
+    --muted:#8fa0b8;
+    --dim:#71839c;
+    --label:#93a4bd;
+
+    --blue:#3b9dff;
+    --green:#34d399;
+    --purple:#a78bfa;
+    --red:#f0655c;
+  }
+
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:"Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+    color:var(--text);
+    background:var(--bg);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  svg{display:block}
+
+  .appbar{
+    position:sticky;
+    top:0;
+    z-index:20;
+    background:var(--bar);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .appbar-inner{
+    max-width:720px;
+    margin:0 auto;
+    padding:13px 16px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .logo{
+    width:46px;
+    height:46px;
+    flex:none;
+    display:block;
+  }
+  .app-id{flex:1;min-width:0}
+  .app-id h1{
+    margin:0;
+    font-size:18.5px;
+    font-weight:700;
+    letter-spacing:-.3px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .app-id p{
+    margin:2px 0 0;
+    font-size:12px;
+    color:var(--muted);
+  }
+  .icon-btn{
+    margin-left:auto;
+    width:40px;
+    height:40px;
+    flex:none;
+    display:grid;
+    place-items:center;
+    border-radius:11px;
+    border:1px solid var(--line);
+    background:transparent;
+    color:#c6d2e2;
+    cursor:pointer;
+  }
+  .icon-btn:hover{background:#1e2b40;color:#fff}
+  .icon-btn svg{width:19px;height:19px}
+
+  main{
+    max-width:720px;
+    margin:0 auto;
+    padding:18px 16px 44px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+
+  .auth{
+    max-width:420px;
+    margin:0 auto;
+    padding:38px 16px 44px;
+  }
+  .auth-card{padding:24px}
+  .auth-logo{width:66px;height:66px;margin:0 auto 16px}
+  .auth-card h2{
+    margin:0;
+    font-size:20px;
+    font-weight:700;
+    letter-spacing:-.3px;
+    text-align:center;
+  }
+  .auth-sub{
+    margin:7px 0 22px;
+    font-size:12.5px;
+    line-height:1.55;
+    color:var(--muted);
+    text-align:center;
+  }
+  .auth-msg{
+    min-height:16px;
+    margin:12px 0 0;
+    font-size:12.5px;
+    line-height:1.5;
+    color:#ff9a92;
+  }
+  .auth-msg:empty{display:none}
+
+  .stats{display:flex;flex-direction:column;gap:12px}
+
+  .stat{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    padding:18px;
+    background:var(--card);
+    border:1px solid var(--line-soft);
+    border-radius:16px;
+  }
+  .stat-ico{
+    width:48px;
+    height:48px;
+    flex:none;
+    border-radius:12px;
+    display:grid;
+    place-items:center;
+  }
+  .stat-ico svg{width:22px;height:22px}
+  .stat-ico.blue{color:var(--blue);background:rgba(59,157,255,.13)}
+  .stat-ico.green{color:var(--green);background:rgba(52,211,153,.12)}
+  .stat-ico.purple{color:var(--purple);background:rgba(167,139,250,.13)}
+  .stat-body{min-width:0}
+  .stat-label{
+    display:block;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--label);
+  }
+  .stat-value{
+    display:block;
+    margin-top:3px;
+    font-size:27px;
+    font-weight:700;
+    line-height:1.12;
+    letter-spacing:-.4px;
+    color:#fff;
+  }
+  .stat-value.text{
+    font-size:16px;
+    font-weight:650;
+    letter-spacing:0;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line-soft);
+    border-radius:16px;
+    padding:18px;
+  }
+  .card-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    padding-bottom:15px;
+    margin-bottom:17px;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .card-head h2{
+    margin:0;
+    font-size:19px;
+    font-weight:700;
+    letter-spacing:-.3px;
+  }
+  .card-head p{
+    margin:4px 0 0;
+    font-size:12.5px;
+    line-height:1.5;
+    color:var(--muted);
+  }
+
+  .chip{
+    flex:none;
+    padding:4px 10px;
+    border-radius:999px;
+    border:1px solid rgba(59,157,255,.28);
+    background:rgba(59,157,255,.12);
+    color:#8ec5ff;
+    font-size:11.5px;
+    font-weight:700;
+    white-space:nowrap;
+  }
+
+  .field{margin-bottom:15px}
+  .field label{
+    display:block;
+    margin-bottom:8px;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--label);
+  }
+  .req{color:var(--red);margin-left:1px}
+
+  .field input{
+    width:100%;
+    height:50px;
+    padding:0 14px;
+    font:inherit;
+    font-size:14.5px;
+    color:var(--text);
+    background:var(--input);
+    border:1px solid var(--line);
+    border-radius:12px;
+  }
+  .field input::placeholder{color:#5f7188}
+  .field input:focus{
+    outline:none;
+    border-color:var(--blue);
+    box-shadow:0 0 0 3px rgba(59,157,255,.16);
+  }
+  .field.bad input{
+    border-color:rgba(240,101,92,.85);
+    background:rgba(240,101,92,.06);
+  }
+  .field.bad input:focus{box-shadow:0 0 0 3px rgba(240,101,92,.18)}
+  .field .hint{
+    display:block;
+    margin-top:6px;
+    font-size:11.5px;
+    line-height:1.4;
+    color:var(--dim);
+  }
+  .field .hint:empty{display:none}
+  .field.bad .hint{color:#ff9a92;font-weight:600}
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    font:inherit;
+    font-weight:700;
+    border-radius:12px;
+    border:1px solid transparent;
+    cursor:pointer;
+  }
+  .btn svg{width:19px;height:19px}
+  .btn:disabled{opacity:.6;cursor:default}
+  .btn-primary{
+    width:100%;
+    height:52px;
+    font-size:15px;
+    color:#fff;
+    background:#2f8bff;
+  }
+  .btn-primary:hover:not(:disabled){background:#4a9cff}
+
+  .search-row{position:relative;margin-bottom:6px}
+  .search-row svg{
+    position:absolute;
+    left:13px;
+    top:50%;
+    transform:translateY(-50%);
+    width:17px;
+    height:17px;
+    color:#6d8099;
+    pointer-events:none;
+  }
+  .search{
+    width:100%;
+    height:44px;
+    padding:0 13px 0 39px;
+    font:inherit;
+    font-size:13.5px;
+    color:var(--text);
+    background:var(--input);
+    border:1px solid var(--line);
+    border-radius:11px;
+  }
+  .search::placeholder{color:#5f7188}
+  .search:focus{outline:none;border-color:var(--blue)}
+
+  .records{list-style:none;margin:0;padding:0}
+  .record{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    padding:13px 2px;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .record:last-child{border-bottom:none}
+  .rec-main{flex:1;min-width:0}
+  .rec-name{
+    display:block;
+    font-size:14.5px;
+    font-weight:650;
+    color:#fff;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .pid{
+    display:inline-block;
+    margin-top:5px;
+    padding:2px 8px;
+    border-radius:6px;
+    border:1px solid rgba(59,157,255,.24);
+    background:rgba(59,157,255,.11);
+    color:#7cc0ff;
+    font-family:ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size:11.5px;
+    font-weight:600;
+  }
+  .rec-time{
+    flex:none;
+    font-size:12px;
+    color:var(--muted);
+    font-variant-numeric:tabular-nums;
+  }
+  .icon-x{
+    flex:none;
+    width:34px;
+    height:34px;
+    display:grid;
+    place-items:center;
+    border-radius:9px;
+    border:1px solid var(--line);
+    background:transparent;
+    color:#8497b0;
+    cursor:pointer;
+  }
+  .icon-x svg{width:15px;height:15px}
+  .icon-x:hover{color:#ff9a92;border-color:rgba(240,101,92,.5);background:rgba(240,101,92,.08)}
+
+  .empty{
+    padding:30px 14px;
+    text-align:center;
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.55;
+  }
+  .empty strong{
+    display:block;
+    margin-bottom:5px;
+    color:#dbe4f0;
+    font-size:14.5px;
+  }
+
+  @keyframes flash{
+    0%{background:rgba(52,211,153,.14)}
+    100%{background:transparent}
+  }
+  .record.flash{animation:flash 1.6s ease-out}
+
+  details.roster{margin-top:0}
+  details.roster > summary{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:16px 18px;
+    cursor:pointer;
+    list-style:none;
+    font-size:14px;
+    font-weight:650;
+    color:#e8eef7;
+  }
+  details.roster > summary::-webkit-details-marker{display:none}
+  details.roster > summary .sum-label{flex:1}
+  details.roster > summary .caret{
+    width:16px;
+    height:16px;
+    color:#7d8fa8;
+    transition:transform .18s;
+  }
+  details.roster[open] > summary .caret{transform:rotate(180deg)}
+  details.roster[open] > summary{border-bottom:1px solid var(--line-soft)}
+  .roster-body{padding:0 12px 8px}
+  .roster-list{list-style:none;margin:0;padding:0;max-height:280px;overflow:auto}
+  .roster-list li{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:11px 6px;
+    border-bottom:1px solid var(--line-soft);
+    font-size:13.5px;
+  }
+  .roster-list li:last-child{border-bottom:none}
+  .roster-list .who{flex:1;min-width:0;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .roster-list .nm{color:#e8eef7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .roster-empty{padding:14px 6px;color:var(--muted);font-size:12.5px}
+
+  .foot{
+    padding:2px 6px;
+    font-size:11px;
+    color:#5d6f88;
+    text-align:center;
+  }
+
+  .backdrop{
+    position:fixed;
+    inset:0;
+    z-index:60;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    padding:0;
+    background:rgba(4,9,18,.75);
+  }
+  .sheet{
+    width:100%;
+    max-width:440px;
+    background:var(--sheet);
+    border:1px solid var(--line);
+    border-radius:20px 20px 0 0;
+    padding:18px 18px calc(18px + env(safe-area-inset-bottom));
+  }
+  @media (min-width:600px){
+    .backdrop{align-items:center;padding:24px}
+    .sheet{border-radius:16px}
+  }
+  .sheet-head{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:14px;
+  }
+  .sheet-head h2{margin:0;font-size:16.5px;font-weight:700}
+  .sheet-head .icon-btn{margin-left:auto;width:36px;height:36px}
+  .sheet-action{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    width:100%;
+    margin-bottom:9px;
+    padding:14px;
+    font:inherit;
+    font-size:14px;
+    font-weight:600;
+    text-align:left;
+    text-decoration:none;
+    color:#e8eef7;
+    background:var(--card);
+    border:1px solid var(--line-soft);
+    border-radius:12px;
+    cursor:pointer;
+  }
+  .sheet-action:hover{background:#1e2b40}
+  .sheet-action svg{width:18px;height:18px;flex:none;color:#9fb2ca}
+  .sheet-action.danger{color:#ff9a92}
+  .sheet-action.danger svg{color:#ff9a92}
+  .sheet-action.danger:hover{background:rgba(240,101,92,.08);border-color:rgba(240,101,92,.35)}
+  .sheet-divider{height:1px;background:var(--line-soft);margin:14px 0}
+  .sheet-note{
+    margin:8px 2px 0;
+    font-size:11px;
+    line-height:1.6;
+    color:var(--dim);
+  }
+  .sheet-note strong{color:#c6d2e2;font-weight:600}
+
+  #toasts{
+    position:fixed;
+    right:16px;
+    bottom:16px;
+    z-index:70;
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+    max-width:min(360px, calc(100vw - 32px));
+  }
+  .toast{
+    padding:12px 15px;
+    border-radius:11px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-left:4px solid var(--green);
+    color:#e8eef7;
+    font-size:13px;
+    line-height:1.45;
+  }
+  .toast.error{border-left-color:var(--red)}
+  .toast.fade{opacity:0;transition:opacity .25s}
+
+  .print-only{display:none}
+
+  @media print{
+    body{background:#fff !important;color:#111 !important}
+    .appbar,.stats,.form-card,details.roster,.search-row,.backdrop,.foot,.icon-x,#toasts,#authScreen{display:none !important}
+    main{max-width:none;padding:0;gap:0}
+    .card{
+      background:#fff !important;
+      border:1px solid #c7ced9 !important;
+      color:#111 !important;
+      border-radius:0 !important;
+    }
+    .card-head{border-bottom:1px solid #dfe3ea !important}
+    .card-head h2,.rec-name,.empty strong{color:#111 !important}
+    .card-head p,.rec-time,.empty{color:#4a5568 !important}
+    .pid{
+      background:#eef1f6 !important;
+      border-color:#d5dae3 !important;
+      color:#334155 !important;
+    }
+    .record{border-bottom:1px solid #e5e7eb !important}
+    .record.flash{animation:none}
+    .print-only{display:block;margin:0 0 10px;font-size:11px;color:#4a5568}
+  }
+</style>
+</head>
+<body>
+
+<header class="appbar">
+  <div class="appbar-inner">
+    <img class="logo" src="assets/citsa-logo.png" alt="" width="46" height="46">
+    <div class="app-id">
+      <h1>Information Technology</h1>
+      <p>Administrator Panel</p>
+    </div>
+    <button class="icon-btn" id="settingsBtn" type="button" aria-label="Settings" aria-expanded="false" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3.1"/>
+        <path d="M19.4 14.6a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.11-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.56-1.11 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9a1.7 1.7 0 0 0 1.56 1.03H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5.57Z"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<section class="auth" id="authScreen" hidden>
+  <div class="card auth-card">
+    <img class="logo auth-logo" src="assets/citsa-logo.png" alt="" width="66" height="66">
+    <h2>Administrator sign in</h2>
+    <p class="auth-sub">Attendance records are stored in the department database and only open to the administrator account.</p>
+
+    <form id="authForm" novalidate>
+      <div class="field">
+        <label for="authEmail">Email</label>
+        <input id="authEmail" type="email" autocomplete="username" spellcheck="false" placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label for="authPassword">Password</label>
+        <input id="authPassword" type="password" autocomplete="current-password" placeholder="Password">
+      </div>
+      <button type="submit" class="btn btn-primary" id="authSubmit">Sign in</button>
+    </form>
+
+    <p class="auth-msg" id="authMsg" role="status"></p>
+  </div>
+</section>
+
+<main id="app" hidden>
+
+  <section class="stats" aria-label="Summary">
+    <article class="stat">
+      <div class="stat-ico blue" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 19.5v-1.4a4 4 0 0 0-4-4H6.5a4 4 0 0 0-4 4v1.4"/>
+          <circle cx="9.2" cy="7.4" r="3.3"/>
+          <path d="M21.5 19.5v-1.4a4 4 0 0 0-3-3.87"/>
+          <path d="M16.3 4.23a3.3 3.3 0 0 1 0 6.34"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <span class="stat-label">Total registered</span>
+        <strong class="stat-value" id="statStudents">0</strong>
+      </div>
+    </article>
+
+    <article class="stat">
+      <div class="stat-ico green" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M8.4 12.4l2.5 2.5 4.8-5.2"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <span class="stat-label">Marked present</span>
+        <strong class="stat-value" id="statMarked">0</strong>
+      </div>
+    </article>
+
+    <article class="stat">
+      <div class="stat-ico purple" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3.2 12a8.8 8.8 0 1 0 2.9-6.5"/>
+          <path d="M3 4.2v5h5"/>
+          <path d="M12 7.8v4.7l3.1 1.8"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <span class="stat-label">Last activity</span>
+        <strong class="stat-value text" id="statLast">No activity yet</strong>
+      </div>
+    </article>
+  </section>
+
+  <section class="card form-card" aria-labelledby="formTitle">
+    <div class="card-head">
+      <h2 id="formTitle">Register student</h2>
+    </div>
+
+    <form id="entryForm" novalidate autocomplete="off">
+      <div class="field" id="fieldName">
+        <label for="studentName">Full name <span class="req">*</span></label>
+        <input id="studentName" name="studentName" type="text" placeholder="Amina Yusuf"
+               maxlength="60" autocapitalize="words" spellcheck="false">
+        <span class="hint" id="hintName"></span>
+      </div>
+
+      <div class="field" id="fieldId">
+        <label for="studentId">Student ID <span class="req">*</span></label>
+        <input id="studentId" name="studentId" type="text" placeholder="PS/ITC/25/0001"
+               maxlength="30" spellcheck="false">
+        <span class="hint" id="hintId">Format: PS/ITC/25/0000</span>
+      </div>
+
+      <div class="field" id="fieldDate">
+        <label for="sessionDate">Date <span class="req">*</span></label>
+        <input id="sessionDate" name="sessionDate" type="date">
+        <span class="hint" id="hintDate"></span>
+      </div>
+
+      <button type="submit" class="btn btn-primary" id="submitBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 6 9 17l-5-5"/>
+        </svg>
+        <span id="submitLabel">Mark present</span>
+      </button>
+    </form>
+  </section>
+
+  <section class="card list-card" aria-labelledby="registerTitle">
+    <div class="card-head">
+      <div>
+        <h2 id="registerTitle">Attendance</h2>
+        <p id="sessionLabel"></p>
+      </div>
+      <span class="chip" id="countChip">0 marked</span>
+    </div>
+
+    <div class="print-only">Information Technology attendance register</div>
+
+    <div class="search-row">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/>
+        <path d="M20 20l-3.6-3.6"/>
+      </svg>
+      <input id="search" class="search" type="search" placeholder="Search name or ID">
+    </div>
+
+    <ul class="records" id="records"></ul>
+  </section>
+
+  <details class="card roster" id="rosterBox">
+    <summary>
+      <span class="sum-label">Registered students (<span id="rosterCount">0</span>)</span>
+      <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M6 9l6 6 6-6"/>
+      </svg>
+    </summary>
+    <div class="roster-body">
+      <ul class="roster-list" id="rosterList"></ul>
+    </div>
+  </details>
+
+  <div class="foot">Information Technology Department</div>
+
+</main>
+
+<div class="backdrop" id="sheetBackdrop" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-head">
+      <h2 id="sheetTitle">Settings</h2>
+      <button class="icon-btn" id="sheetClose" type="button" aria-label="Close settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
+    </div>
+
+    <button class="sheet-action" id="exportBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3.5v10"/>
+        <path d="M8 10l4 4 4-4"/>
+        <path d="M4 20h16"/>
+      </svg>
+      Export all records (CSV)
+    </button>
+
+    <button class="sheet-action" id="printBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M7 8V4h10v4"/>
+        <rect x="4" y="8" width="16" height="8.5" rx="2"/>
+        <path d="M7 16.5h10V21H7z"/>
+      </svg>
+      Print this day's register
+    </button>
+
+    <button class="sheet-action danger" id="resetBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 7h16"/>
+        <path d="M9.5 7V4.8h5V7"/>
+        <path d="M6.4 7l.9 13h9.4l.9-13"/>
+      </svg>
+      Reset all data
+    </button>
+
+    <div class="sheet-divider"></div>
+
+    <a class="sheet-action" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M14 4h6v6"/>
+        <path d="M20 4l-9 9"/>
+        <path d="M19 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4"/>
+      </svg>
+      Student check-in page
+    </a>
+
+    <button class="sheet-action" id="signOutBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/>
+        <path d="M10 8l-4 4 4 4"/>
+        <path d="M6 12h9"/>
+      </svg>
+      Sign out
+    </button>
+
+    <p class="sheet-note">Signed in as <strong id="whoami"></strong>. Records are stored in the department database. Export a CSV to keep a copy.</p>
+  </div>
+</div>
+
+<div id="toasts" aria-live="polite" aria-atomic="false"></div>
+
+<script src="assets/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+  "use strict";
+
+  var SUPABASE_URL = window.SUPABASE_URL || "";
+  var SUPABASE_KEY = window.SUPABASE_KEY || "";
+
+  var NAME_RE = /^[\p{L}][\p{L}\s.'-]*$/u;
+
+  var ID_PREFIX = "PS/ITC/25/";
+  var ID_DIGITS = 4;
+  var ID_EXAMPLE = ID_PREFIX + "0000";
+  var ID_RE = new RegExp(
+    "^" + ID_PREFIX.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&") + "\\d{" + ID_DIGITS + "}$",
+    "i"
+  );
+
+  var TRASH_SVG =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M4 7h16"/><path d="M9.5 7V4.8h5V7"/><path d="M6.4 7l.9 13h9.4l.9-13"/></svg>';
+
+  var $ = function (sel) { return document.querySelector(sel); };
+
+  var els = {
+    app: $("#app"),
+    authScreen: $("#authScreen"),
+    authForm: $("#authForm"),
+    authEmail: $("#authEmail"),
+    authPassword: $("#authPassword"),
+    authSubmit: $("#authSubmit"),
+    authMsg: $("#authMsg"),
+    form: $("#entryForm"),
+    name: $("#studentName"),
+    id: $("#studentId"),
+    date: $("#sessionDate"),
+    hintName: $("#hintName"),
+    hintId: $("#hintId"),
+    hintDate: $("#hintDate"),
+    fieldName: $("#fieldName"),
+    fieldId: $("#fieldId"),
+    fieldDate: $("#fieldDate"),
+    records: $("#records"),
+    search: $("#search"),
+    sessionLabel: $("#sessionLabel"),
+    countChip: $("#countChip"),
+    statMarked: $("#statMarked"),
+    statStudents: $("#statStudents"),
+    statLast: $("#statLast"),
+    rosterCount: $("#rosterCount"),
+    rosterList: $("#rosterList"),
+    toasts: $("#toasts"),
+    sheetBackdrop: $("#sheetBackdrop"),
+    settingsBtn: $("#settingsBtn"),
+    sheetClose: $("#sheetClose"),
+    submitBtn: $("#submitBtn"),
+    submitLabel: $("#submitLabel"),
+    whoami: $("#whoami"),
+    signOutBtn: $("#signOutBtn")
+  };
+
+  var db = null;
+  var state = { students: [], records: [], last: null };
+  var lastAdded = null;
+
+  function esc(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function normId(v) { return String(v || "").toUpperCase().replace(/\s+/g, ""); }
+  function normName(v) { return String(v || "").toLowerCase().replace(/\s+/g, " ").trim(); }
+
+  function expandId(raw) {
+    var v = String(raw || "").replace(/\s+/g, "").toUpperCase();
+    if (/^\d{1,4}$/.test(v)) return ID_PREFIX + v.padStart(ID_DIGITS, "0");
+
+    var serial = v.indexOf(ID_PREFIX) === 0 ? v.slice(ID_PREFIX.length) : "";
+    if (/^\d{1,4}$/.test(serial)) return ID_PREFIX + serial.padStart(ID_DIGITS, "0");
+
+    return v;
+  }
+
+  function idIncomplete(v) {
+    var up = String(v || "").replace(/\s+/g, "").toUpperCase();
+    if (/^\d{1,4}$/.test(up)) return true;
+    if (up.length < ID_PREFIX.length) return ID_PREFIX.indexOf(up) === 0;
+    if (up.indexOf(ID_PREFIX) !== 0) return false;
+
+    var serial = up.slice(ID_PREFIX.length);
+    return serial.length < ID_DIGITS && /^\d*$/.test(serial);
+  }
+
+  function isoDate(d) {
+    var local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 10);
+  }
+
+  function fmtTime(iso) {
+    return new Date(iso).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  }
+
+  function longDate(iso) {
+    var d = new Date(iso + "T00:00:00");
+    return d.toLocaleDateString(undefined, {
+      weekday: "long", day: "numeric", month: "long", year: "numeric"
+    });
+  }
+
+  function toast(message, kind) {
+    var el = document.createElement("div");
+    el.className = "toast" + (kind === "error" ? " error" : "");
+    el.textContent = message;
+    els.toasts.appendChild(el);
+    setTimeout(function () {
+      el.classList.add("fade");
+      setTimeout(function () { el.remove(); }, 300);
+    }, kind === "error" ? 4500 : 2500);
+  }
+
+  function setFieldError(field, hint, message) {
+    field.classList.add("bad");
+    hint.textContent = message;
+  }
+
+  function clearFieldErrors() {
+    [els.fieldName, els.fieldId, els.fieldDate].forEach(function (f) {
+      f.classList.remove("bad");
+    });
+    els.hintName.textContent = "";
+    els.hintId.textContent = "Format: " + ID_EXAMPLE;
+    els.hintDate.textContent = "";
+  }
+
+  function findConflicts(name, id) {
+    var nId = normId(id), nName = normName(name);
+    var byId = state.students.find(function (s) { return normId(s.id) === nId; }) || null;
+    var byName = state.students.find(function (s) { return normName(s.name) === nName; }) || null;
+    var errors = { name: "", id: "" };
+
+    if (byId && normName(byId.name) !== nName) {
+      errors.id = 'That ID is registered to "' + byId.name + '".';
+    }
+    if (byName && normId(byName.id) !== nId) {
+      errors.name = 'That name is registered with ID "' + byName.id + '".';
+    }
+    return { byId: byId, byName: byName, errors: errors };
+  }
+
+  function liveHints() {
+    var name = els.name.value.replace(/\s+/g, " ").trim();
+    var id = expandId(els.id.value);
+    var nameBad = false, idBad = false;
+
+    clearFieldErrors();
+
+    if (name && !NAME_RE.test(name)) {
+      els.hintName.textContent = "Use letters, spaces, apostrophes, hyphens or periods.";
+      els.fieldName.classList.add("bad");
+      nameBad = true;
+    }
+    if (els.id.value.trim() && !ID_RE.test(id) && !idIncomplete(els.id.value)) {
+      els.hintId.textContent = "Use the format " + ID_EXAMPLE + ".";
+      els.fieldId.classList.add("bad");
+      idBad = true;
+    }
+
+    var conflicts = findConflicts(name, id);
+
+    if (conflicts.errors.id && !idBad) {
+      els.hintId.textContent = conflicts.errors.id;
+      els.fieldId.classList.add("bad");
+      idBad = true;
+    }
+    if (conflicts.errors.name && !nameBad) {
+      els.hintName.textContent = conflicts.errors.name;
+      els.fieldName.classList.add("bad");
+    }
+
+    if (!nameBad && !idBad && conflicts.byId && normName(conflicts.byId.name) === normName(name)) {
+      els.hintId.textContent = 'Registered as "' + conflicts.byId.name + '".';
+    }
+  }
+
+  function setBusy(on) {
+    els.submitBtn.disabled = on;
+    els.submitLabel.textContent = on ? "Saving..." : "Mark present";
+  }
+
+  function dbMessage(error) {
+    if (!error) return "Something went wrong. Try again.";
+    if (error.code === "23505") return "That student is already registered.";
+    if (error.code === "23503") return "The student record was not found. Refresh the page.";
+    if (error.code === "23514") return "That value does not match the allowed format.";
+    if (error.code === "PGRST301" || error.status === 401 || error.status === 403 || error.code === "42501") {
+      return "You do not have access. Sign in as the administrator.";
+    }
+    return error.message || "Something went wrong. Try again.";
+  }
+
+  function handleError(error) {
+    if (error && (error.code === "PGRST301" || error.status === 401)) {
+      toast("Session expired. Sign in again.", "error");
+      db.auth.signOut();
+      return;
+    }
+    toast(dbMessage(error), "error");
+  }
+
+  function showAuth(message) {
+    els.authScreen.hidden = false;
+    els.app.hidden = true;
+    els.settingsBtn.hidden = true;
+    if (message) els.authMsg.textContent = message;
+  }
+
+  async function fetchStudents() {
+    var r = await db.from("students").select("student_id, name").order("name");
+    if (r.error) throw r.error;
+    return r.data.map(function (s) {
+      return { id: s.student_id, name: s.name };
+    });
+  }
+
+  async function fetchRecords() {
+    var r = await db
+      .from("attendance")
+      .select("student_id, marked_at, students(name)")
+      .eq("date", els.date.value)
+      .order("marked_at");
+    if (r.error) throw r.error;
+    return r.data.map(function (a) {
+      return {
+        date: els.date.value,
+        id: a.student_id,
+        name: a.students ? a.students.name : "",
+        time: a.marked_at
+      };
+    });
+  }
+
+  async function fetchLast() {
+    var r = await db
+      .from("attendance")
+      .select("marked_at, students(name)")
+      .order("marked_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (r.error) throw r.error;
+    if (!r.data) return null;
+    return {
+      name: r.data.students ? r.data.students.name : "",
+      time: r.data.marked_at
+    };
+  }
+
+  async function refresh() {
+    try {
+      var result = await Promise.all([fetchStudents(), fetchRecords(), fetchLast()]);
+      state.students = result[0];
+      state.records = result[1];
+      state.last = result[2];
+    } catch (e) {
+      handleError(e);
+    }
+    render();
+  }
+
+  async function enterApp() {
+    els.authMsg.textContent = "";
+
+    var admin = await db.from("admins").select("user_id").maybeSingle();
+    if (admin.error) {
+      showAuth(dbMessage(admin.error));
+      await db.auth.signOut();
+      return;
+    }
+    if (!admin.data) {
+      await db.auth.signOut();
+      showAuth("This account is not an administrator.");
+      return;
+    }
+
+    var user = await db.auth.getUser();
+    els.whoami.textContent = user.data.user ? user.data.user.email : "";
+
+    els.authScreen.hidden = true;
+    els.app.hidden = false;
+    els.settingsBtn.hidden = false;
+    await refresh();
+  }
+
+  async function start() {
+    if (!SUPABASE_URL || !SUPABASE_KEY) {
+      showAuth("Supabase is not configured. Add SUPABASE_URL and SUPABASE_KEY to assets/config.js.");
+      els.authSubmit.disabled = true;
+      return;
+    }
+    if (typeof supabase === "undefined") {
+      showAuth("The Supabase library could not load. Check your internet connection and reload.");
+      els.authSubmit.disabled = true;
+      return;
+    }
+
+    db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    db.auth.onAuthStateChange(function (event) {
+      if (event === "SIGNED_OUT") showAuth("");
+    });
+
+    var session = await db.auth.getSession();
+    if (session.data.session) {
+      await enterApp();
+    } else {
+      showAuth("");
+    }
+  }
+
+  async function submitEntry() {
+    clearFieldErrors();
+
+    var name = els.name.value.replace(/\s+/g, " ").trim();
+    var id = expandId(els.id.value);
+    var date = els.date.value;
+    var bad = false;
+
+    if (id) els.id.value = id;
+
+    if (!date) {
+      setFieldError(els.fieldDate, els.hintDate, "Choose a date.");
+      bad = true;
+    }
+    if (!name) {
+      setFieldError(els.fieldName, els.hintName, "Enter the student's name.");
+      bad = true;
+    } else if (name.length < 2) {
+      setFieldError(els.fieldName, els.hintName, "Name is too short.");
+      bad = true;
+    } else if (!NAME_RE.test(name)) {
+      setFieldError(els.fieldName, els.hintName, "Use letters, spaces, apostrophes, hyphens or periods.");
+      bad = true;
+    }
+    if (!id) {
+      setFieldError(els.fieldId, els.hintId, "Enter the student ID.");
+      bad = true;
+    } else if (!ID_RE.test(id)) {
+      setFieldError(els.fieldId, els.hintId, "Use the format " + ID_EXAMPLE + ".");
+      bad = true;
+    }
+    if (bad) {
+      toast("Check the highlighted fields.", "error");
+      return;
+    }
+
+    var conflicts = findConflicts(name, id);
+    if (conflicts.errors.name || conflicts.errors.id) {
+      if (conflicts.errors.name) setFieldError(els.fieldName, els.hintName, conflicts.errors.name);
+      if (conflicts.errors.id) setFieldError(els.fieldId, els.hintId, conflicts.errors.id);
+      toast("Student already registered.", "error");
+      return;
+    }
+
+    var student = conflicts.byId || conflicts.byName || null;
+    var studentId = student ? student.id : id;
+    var studentName = student ? student.name : name;
+
+    var alreadyMarked = state.records.some(function (r) {
+      return normId(r.id) === normId(studentId);
+    });
+    if (alreadyMarked) {
+      setFieldError(els.fieldId, els.hintId, "Already marked for this date.");
+      toast(studentName + " is already marked for this date.", "error");
+      return;
+    }
+
+    setBusy(true);
+    try {
+      if (!student) {
+        var added = await db.from("students").insert({ student_id: id, name: name });
+        if (added.error) {
+          if (added.error.code === "23505") {
+            await refresh();
+            var again = findConflicts(name, id);
+            if (again.errors.id) setFieldError(els.fieldId, els.hintId, again.errors.id);
+            if (again.errors.name) setFieldError(els.fieldName, els.hintName, again.errors.name);
+            toast("Student already registered.", "error");
+            return;
+          }
+          throw added.error;
+        }
+      }
+
+      var marked = await db.from("attendance").insert({ student_id: studentId, date: date });
+      if (marked.error) {
+        if (marked.error.code === "23505") {
+          toast(studentName + " is already marked for this date.", "error");
+          await refresh();
+          return;
+        }
+        throw marked.error;
+      }
+
+      lastAdded = date + "|" + normId(studentId);
+      await refresh();
+      toast(studentName + " marked present.", "ok");
+
+      els.name.value = "";
+      els.id.value = "";
+      clearFieldErrors();
+      els.name.focus();
+    } catch (e) {
+      handleError(e);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function renderRecords() {
+    var q = els.search.value.trim();
+    var rows = state.records.slice();
+
+    if (q) {
+      var nq = normName(q), iq = normId(q);
+      rows = rows.filter(function (r) {
+        return normName(r.name).indexOf(nq) !== -1 || normId(r.id).indexOf(iq) !== -1;
+      });
+    }
+
+    if (!rows.length) {
+      var title = q ? "No match" : "No attendance yet";
+      var msg = q ? 'No student matches "' + esc(q) + '".' : "No students marked for this date.";
+      els.records.innerHTML = '<li class="empty"><strong>' + title + "</strong>" + msg + "</li>";
+      return;
+    }
+
+    els.records.innerHTML = rows.map(function (r) {
+      var flash = lastAdded === r.date + "|" + normId(r.id) ? " flash" : "";
+      return '<li class="record' + flash + '">' +
+        '<div class="rec-main">' +
+          '<span class="rec-name">' + esc(r.name) + "</span>" +
+          '<span class="pid">' + esc(r.id) + "</span>" +
+        "</div>" +
+        '<span class="rec-time">' + esc(fmtTime(r.time)) + "</span>" +
+        '<button type="button" class="icon-x" data-act="remove" ' +
+          'data-date="' + esc(r.date) + '" data-id="' + esc(r.id) + '" ' +
+          'aria-label="Remove ' + esc(r.name) + '">' + TRASH_SVG + "</button>" +
+        "</li>";
+    }).join("");
+
+    lastAdded = null;
+  }
+
+  function renderStats() {
+    var marked = state.records.length;
+    var last = state.last;
+
+    els.statStudents.textContent = state.students.length;
+    els.statMarked.textContent = marked;
+    els.countChip.textContent = marked + " marked";
+    els.statLast.textContent = last && last.name
+      ? last.name + " (" + fmtTime(last.time) + ")"
+      : "No activity yet";
+    els.statLast.title = els.statLast.textContent;
+  }
+
+  function renderRoster() {
+    els.rosterCount.textContent = state.students.length;
+
+    if (!state.students.length) {
+      els.rosterList.innerHTML = '<li class="roster-empty">No students registered.</li>';
+      return;
+    }
+
+    els.rosterList.innerHTML = state.students
+      .slice()
+      .sort(function (a, b) { return a.name.localeCompare(b.name); })
+      .map(function (s) {
+        return "<li>" +
+          '<span class="who"><span class="nm">' + esc(s.name) + "</span>" +
+          '<span class="pid">' + esc(s.id) + "</span></span>" +
+          '<button type="button" class="icon-x" data-act="delete-student" ' +
+            'data-id="' + esc(s.id) + '" aria-label="Delete ' + esc(s.name) + '">' + TRASH_SVG + "</button>" +
+          "</li>";
+      }).join("");
+  }
+
+  function render() {
+    els.sessionLabel.textContent = longDate(els.date.value);
+    renderStats();
+    renderRecords();
+    renderRoster();
+  }
+
+  function openSheet() {
+    els.sheetBackdrop.hidden = false;
+    els.settingsBtn.setAttribute("aria-expanded", "true");
+    document.body.style.overflow = "hidden";
+    els.sheetClose.focus();
+  }
+
+  function closeSheet() {
+    if (els.sheetBackdrop.hidden) return;
+    els.sheetBackdrop.hidden = true;
+    els.settingsBtn.setAttribute("aria-expanded", "false");
+    document.body.style.overflow = "";
+    els.settingsBtn.focus();
+  }
+
+  els.form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    submitEntry();
+  });
+
+  els.name.addEventListener("input", liveHints);
+  els.id.addEventListener("input", liveHints);
+
+  els.id.addEventListener("blur", function () {
+    var expanded = expandId(els.id.value);
+    if (expanded !== els.id.value) {
+      els.id.value = expanded;
+      liveHints();
+    }
+  });
+
+  els.date.addEventListener("change", async function () {
+    if (!els.date.value) els.date.value = isoDate(new Date());
+    render();
+    try {
+      state.records = await fetchRecords();
+    } catch (e) {
+      handleError(e);
+    }
+    render();
+  });
+
+  els.search.addEventListener("input", renderRecords);
+
+  els.records.addEventListener("click", async function (e) {
+    var btn = e.target.closest('button[data-act="remove"]');
+    if (!btn) return;
+    var date = btn.getAttribute("data-date");
+    var id = btn.getAttribute("data-id");
+    btn.disabled = true;
+
+    var result = await db.from("attendance").delete().eq("date", date).eq("student_id", id);
+    if (result.error) {
+      btn.disabled = false;
+      handleError(result.error);
+      return;
+    }
+    await refresh();
+    toast("Entry removed.", "ok");
+  });
+
+  els.rosterList.addEventListener("click", async function (e) {
+    var btn = e.target.closest('button[data-act="delete-student"]');
+    if (!btn) return;
+    var id = btn.getAttribute("data-id");
+    var student = state.students.find(function (s) { return normId(s.id) === normId(id); });
+    if (!student) return;
+    if (!confirm('Delete "' + student.name + '" (ID ' + student.id + ") and all their records?")) return;
+
+    btn.disabled = true;
+    var result = await db.from("students").delete().eq("student_id", student.id);
+    if (result.error) {
+      btn.disabled = false;
+      handleError(result.error);
+      return;
+    }
+    await refresh();
+    toast(student.name + " removed.", "ok");
+  });
+
+  els.settingsBtn.addEventListener("click", openSheet);
+  els.sheetClose.addEventListener("click", closeSheet);
+  els.sheetBackdrop.addEventListener("click", function (e) {
+    if (e.target === els.sheetBackdrop) closeSheet();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !els.sheetBackdrop.hidden) closeSheet();
+  });
+
+  $("#printBtn").addEventListener("click", function () {
+    closeSheet();
+    window.print();
+  });
+
+  $("#resetBtn").addEventListener("click", async function () {
+    if (!state.students.length && !state.records.length) {
+      toast("No data to reset.", "error");
+      return;
+    }
+    if (!confirm("Delete all students and attendance records?")) return;
+
+    var result = await db.from("students").delete().not("id", "is", null);
+    if (result.error) {
+      handleError(result.error);
+      return;
+    }
+    state.students = [];
+    state.records = [];
+    state.last = null;
+    els.search.value = "";
+    closeSheet();
+    render();
+    toast("All data cleared.", "ok");
+  });
+
+  $("#signOutBtn").addEventListener("click", async function () {
+    closeSheet();
+    await db.auth.signOut();
+    state = { students: [], records: [], last: null };
+    els.whoami.textContent = "";
+    showAuth("");
+  });
+
+  function csvCell(value) {
+    return '"' + String(value).replace(/"/g, '""') + '"';
+  }
+
+  $("#exportBtn").addEventListener("click", async function () {
+    var result = await db
+      .from("attendance")
+      .select("date, marked_at, student_id, students(name)")
+      .order("date", { ascending: true })
+      .order("marked_at", { ascending: true });
+
+    if (result.error) {
+      handleError(result.error);
+      return;
+    }
+    if (!result.data.length) {
+      toast("No records to export.", "error");
+      return;
+    }
+
+    var lines = [["Date", "Student ID", "Student Name", "Time Marked"].map(csvCell).join(",")];
+    result.data.forEach(function (r) {
+      lines.push([
+        r.date,
+        r.student_id,
+        r.students ? r.students.name : "",
+        fmtTime(r.marked_at)
+      ].map(csvCell).join(","));
+    });
+
+    var blob = new Blob(["\ufeff" + lines.join("\r\n")], { type: "text/csv;charset=utf-8;" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "attendance-register-" + isoDate(new Date()) + ".csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+    closeSheet();
+    toast("Exported " + result.data.length + " records.", "ok");
+  });
+
+  els.authForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    var email = els.authEmail.value.trim();
+    var password = els.authPassword.value;
+
+    if (!email || !password) {
+      els.authMsg.textContent = "Enter your email and password.";
+      return;
+    }
+
+    els.authSubmit.disabled = true;
+    els.authSubmit.textContent = "Signing in...";
+    els.authMsg.textContent = "";
+
+    var result = await db.auth.signInWithPassword({ email: email, password: password });
+
+    els.authSubmit.disabled = false;
+    els.authSubmit.textContent = "Sign in";
+
+    if (result.error) {
+      els.authMsg.textContent = result.error.message;
+      return;
+    }
+
+    els.authPassword.value = "";
+    await enterApp();
+  });
+
+  els.date.value = isoDate(new Date());
+  render();
+  start();
+})();
+</script>
+</body>
+</html>

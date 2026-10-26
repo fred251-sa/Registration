@@ -72,3 +72,64 @@ create policy "attendance admin access" on public.attendance
 
 -- No policies for the anon role: without a signed-in administrator account,
 -- the tables return nothing and reject writes.
+
+-- Public check-in for index.html. Visitors can add a student and mark them
+-- present for today, but cannot read the tables.
+create or replace function public.check_in(p_name text, p_student_id text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_name text := btrim(regexp_replace(coalesce(p_name, ''), '\s+', ' ', 'g'));
+  v_id text := upper(regexp_replace(coalesce(p_student_id, ''), '\s+', '', 'g'));
+  v_student public.students%rowtype;
+  v_marked_at timestamptz;
+begin
+  if v_name = '' or char_length(v_name) < 2 then
+    raise exception 'Enter your full name.' using errcode = '22023';
+  end if;
+  if char_length(v_name) > 60 then
+    raise exception 'That name is too long.' using errcode = '22023';
+  end if;
+  if v_id !~ '^PS/ITC/25/[0-9]{4}$' then
+    raise exception 'Use the format PS/ITC/25/0000.' using errcode = '22023';
+  end if;
+
+  select * into v_student from public.students where student_id = v_id;
+
+  if found then
+    if lower(btrim(v_student.name)) <> lower(v_name) then
+      raise exception 'That ID belongs to a different student.' using errcode = 'P0001';
+    end if;
+  else
+    if exists (select 1 from public.students where lower(btrim(name)) = lower(v_name)) then
+      raise exception 'That name is already registered with a different ID.' using errcode = 'P0001';
+    end if;
+
+    insert into public.students (student_id, name)
+    values (v_id, v_name)
+    returning * into v_student;
+  end if;
+
+  begin
+    insert into public.attendance (student_id, date)
+    values (v_id, current_date)
+    returning marked_at into v_marked_at;
+  exception
+    when unique_violation then
+      raise exception 'Already marked present for today.' using errcode = 'P0001';
+  end;
+
+  return jsonb_build_object(
+    'name', v_student.name,
+    'student_id', v_id,
+    'date', current_date,
+    'marked_at', v_marked_at
+  );
+end;
+$$;
+
+revoke all on function public.check_in(text, text) from public;
+grant execute on function public.check_in(text, text) to anon, authenticated;
