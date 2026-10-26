@@ -3,180 +3,229 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0a1322">
+<meta name="theme-color" content="#020617">
 <link rel="icon" href="assets/citsa-logo.png">
 <title>Information Technology: Student Check-in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     color-scheme: dark;
 
-    --bg:#0a1322;
-    --bar:#152238;
-    --card:#1a2436;
-    --input:#0e1929;
-    --line:#2a3850;
-    --line-soft:#233045;
+    --bg:#020617;
+    --glass:rgba(15,23,42,.72);
+    --glass-soft:rgba(15,23,42,.55);
+    --line:rgba(148,163,184,.16);
+    --line-strong:rgba(148,163,184,.28);
 
-    --text:#f2f6fc;
-    --muted:#8fa0b8;
-    --dim:#71839c;
-    --label:#93a4bd;
+    --text:#e6edf7;
+    --muted:#94a3b8;
+    --dim:#64748b;
+    --label:#8ea3c0;
 
-    --blue:#3b9dff;
+    --cyan:#22d3ee;
+    --sky:#38bdf8;
+    --violet:#a78bfa;
     --green:#34d399;
-    --red:#f0655c;
+    --red:#fb7185;
   }
 
   *{box-sizing:border-box}
   [hidden]{display:none !important}
 
+  html,body{height:100%}
+
   body{
     margin:0;
     min-height:100vh;
-    font-family:"Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+    display:flex;
+    flex-direction:column;
+    font-family:Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
     color:var(--text);
-    background:var(--bg);
+    background:
+      radial-gradient(1100px 600px at 12% -10%, rgba(34,211,238,.14), transparent 60%),
+      radial-gradient(1000px 700px at 100% 0%, rgba(139,92,246,.16), transparent 55%),
+      linear-gradient(180deg, #020617 0%, #050d1f 45%, #020617 100%);
+    background-attachment: fixed;
     -webkit-font-smoothing:antialiased;
   }
 
   svg{display:block}
 
-  .appbar{
-    position:sticky;
-    top:0;
-    z-index:20;
-    background:var(--bar);
-    border-bottom:1px solid var(--line-soft);
+  /* ---------- animated glowing orbs ---------- */
+  .orbs{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+  .orb{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(70px);
+    opacity:.5;
+    will-change:transform;
   }
-  .appbar-inner{
-    max-width:720px;
-    margin:0 auto;
-    padding:13px 16px;
-    display:flex;
-    align-items:center;
-    gap:12px;
+  .orb.a{width:420px;height:420px;left:-90px;top:-80px;background:radial-gradient(circle at 30% 30%, #22d3ee, rgba(34,211,238,0) 70%);animation:floatA 26s ease-in-out infinite}
+  .orb.b{width:520px;height:520px;right:-140px;top:8%;background:radial-gradient(circle at 40% 40%, #8b5cf6, rgba(139,92,246,0) 70%);animation:floatB 32s ease-in-out infinite}
+  .orb.c{width:380px;height:380px;left:35%;bottom:-160px;background:radial-gradient(circle at 50% 50%, #38bdf8, rgba(56,189,248,0) 70%);animation:floatC 38s ease-in-out infinite}
+
+  @keyframes floatA{
+    0%,100%{transform:translate3d(0,0,0) scale(1)}
+    33%{transform:translate3d(80px,60px,0) scale(1.12)}
+    66%{transform:translate3d(30px,120px,0) scale(.94)}
   }
-  .logo{
-    width:46px;
-    height:46px;
-    flex:none;
-    display:block;
+  @keyframes floatB{
+    0%,100%{transform:translate3d(0,0,0) scale(1)}
+    35%{transform:translate3d(-90px,80px,0) scale(.9)}
+    70%{transform:translate3d(-40px,-40px,0) scale(1.1)}
   }
-  .app-id{flex:1;min-width:0}
-  .app-id h1{
-    margin:0;
-    font-size:18.5px;
-    font-weight:700;
-    letter-spacing:-.3px;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
-  .app-id p{
-    margin:2px 0 0;
-    font-size:12px;
-    color:var(--muted);
+  @keyframes floatC{
+    0%,100%{transform:translate3d(0,0,0) scale(1)}
+    40%{transform:translate3d(120px,-70px,0) scale(1.15)}
+    75%{transform:translate3d(-60px,-30px,0) scale(.95)}
   }
 
+  /* ---------- layout ---------- */
   main{
-    max-width:720px;
+    position:relative;
+    z-index:2;
+    flex:1;
+    width:100%;
+    max-width:470px;
     margin:0 auto;
-    padding:18px 16px 44px;
+    padding:46px 16px 26px;
     display:flex;
     flex-direction:column;
+    justify-content:center;
     gap:16px;
   }
 
+  .glass{
+    background:var(--glass);
+    border:1px solid var(--line);
+    border-radius:22px;
+    backdrop-filter:blur(22px) saturate(140%);
+    -webkit-backdrop-filter:blur(22px) saturate(140%);
+    box-shadow:0 24px 60px -24px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.05);
+  }
+
   .card{
-    background:var(--card);
-    border:1px solid var(--line-soft);
-    border-radius:16px;
-    padding:18px;
+    padding:30px 26px 26px;
+    animation:rise .55s cubic-bezier(.22,1,.36,1) both;
   }
-  .card-head{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:12px;
-    padding-bottom:15px;
-    margin-bottom:17px;
-    border-bottom:1px solid var(--line-soft);
+  .card.shake{animation:shake .42s ease}
+  .card.ok{border-color:rgba(52,211,153,.45);box-shadow:0 24px 60px -24px rgba(0,0,0,.75), 0 0 40px -14px rgba(52,211,153,.55), inset 0 1px 0 rgba(255,255,255,.05)}
+
+  .logo{
+    width:64px;height:64px;
+    margin:0 auto 15px;
+    display:block;
+    border-radius:18px;
+    box-shadow:0 12px 30px -10px rgba(56,189,248,.65), 0 0 0 1px rgba(255,255,255,.08);
   }
-  .card-head h2{
-    margin:0;
-    font-size:19px;
+
+  .eyebrow{
+    margin:0 0 6px;
+    text-align:center;
+    font-size:10.5px;
     font-weight:700;
-    letter-spacing:-.3px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--cyan);
   }
-  .card-head p{
-    margin:5px 0 0;
+
+  .card h1{
+    margin:0;
+    text-align:center;
+    font-size:23px;
+    font-weight:800;
+    letter-spacing:-.5px;
+  }
+
+  .sub{
+    margin:8px 0 0;
     font-size:12.5px;
-    line-height:1.5;
+    line-height:1.6;
     color:var(--muted);
+    text-align:center;
   }
 
   .chip{
-    flex:none;
-    padding:4px 10px;
+    display:block;
+    width:max-content;
+    margin:14px auto 0;
+    padding:5px 13px;
     border-radius:999px;
-    border:1px solid rgba(59,157,255,.28);
-    background:rgba(59,157,255,.12);
-    color:#8ec5ff;
+    border:1px solid rgba(34,211,238,.3);
+    background:rgba(34,211,238,.1);
+    color:#7de8f7;
     font-size:11.5px;
     font-weight:700;
-    white-space:nowrap;
   }
 
   .notice{
-    margin:0 0 16px;
-    padding:12px 14px;
-    border-radius:11px;
+    margin:16px 0 0;
+    padding:13px 15px;
+    border-radius:13px;
     border:1px solid rgba(52,211,153,.4);
     background:rgba(52,211,153,.1);
     color:#a7f3d0;
     font-size:13px;
     line-height:1.5;
+    animation:rise .35s ease both;
   }
   .notice.error{
-    border-color:rgba(240,101,92,.45);
-    background:rgba(240,101,92,.08);
-    color:#ffb3ad;
+    border-color:rgba(251,113,133,.45);
+    background:rgba(251,113,133,.09);
+    color:#fda4af;
   }
 
+  form{margin-top:20px}
+
   .field{margin-bottom:15px}
-  .field label{
+  .field > label{
     display:block;
     margin-bottom:8px;
-    font-size:11px;
+    font-size:10.5px;
     font-weight:700;
-    letter-spacing:.08em;
+    letter-spacing:.1em;
     text-transform:uppercase;
     color:var(--label);
   }
   .req{color:var(--red);margin-left:1px}
 
+  .input-wrap{position:relative;display:flex;align-items:center}
+  .input-wrap > svg{
+    position:absolute;
+    left:14px;
+    width:17px;height:17px;
+    color:#64748b;
+    pointer-events:none;
+    transition:color .25s;
+  }
+  .input-wrap:focus-within > svg{color:var(--cyan)}
+
   .field input{
     width:100%;
-    height:50px;
-    padding:0 14px;
+    height:52px;
+    padding:0 14px 0 42px;
     font:inherit;
-    font-size:14.5px;
+    font-size:15px;
     color:var(--text);
-    background:var(--input);
-    border:1px solid var(--line);
-    border-radius:12px;
+    background:rgba(2,6,23,.6);
+    border:1px solid var(--line-strong);
+    border-radius:13px;
+    transition:border-color .3s, box-shadow .3s, background .3s;
   }
-  .field input::placeholder{color:#5f7188}
+  .field input::placeholder{color:#4c5c74}
   .field input:focus{
     outline:none;
-    border-color:var(--blue);
-    box-shadow:0 0 0 3px rgba(59,157,255,.16);
+    border-color:rgba(34,211,238,.75);
+    background:rgba(2,6,23,.85);
+    box-shadow:0 0 0 4px rgba(34,211,238,.14), 0 0 22px -6px rgba(34,211,238,.55);
   }
   .field.bad input{
-    border-color:rgba(240,101,92,.85);
-    background:rgba(240,101,92,.06);
+    border-color:rgba(251,113,133,.8);
+    background:rgba(251,113,133,.06);
   }
-  .field.bad input:focus{box-shadow:0 0 0 3px rgba(240,101,92,.18)}
+  .field.bad input:focus{box-shadow:0 0 0 4px rgba(251,113,133,.16)}
   .field .hint{
     display:block;
     margin-top:6px;
@@ -185,32 +234,52 @@
     color:var(--dim);
   }
   .field .hint:empty{display:none}
-  .field.bad .hint{color:#ff9a92;font-weight:600}
+  .field.bad .hint{color:#fda4af;font-weight:600}
 
   .btn{
     display:inline-flex;
     align-items:center;
     justify-content:center;
-    gap:8px;
+    gap:9px;
     font:inherit;
     font-weight:700;
-    border-radius:12px;
+    border-radius:13px;
     border:1px solid transparent;
     cursor:pointer;
   }
-  .btn svg{width:19px;height:19px}
-  .btn:disabled{opacity:.6;cursor:default}
+  .btn svg{width:18px;height:18px}
+  .btn:disabled{cursor:default}
+
   .btn-primary{
+    position:relative;
     width:100%;
-    height:52px;
+    height:54px;
+    margin-top:6px;
     font-size:15px;
-    color:#fff;
-    background:#2f8bff;
+    color:#04121c;
+    background:linear-gradient(135deg, #22d3ee 0%, #38bdf8 55%, #818cf8 100%);
+    box-shadow:0 14px 34px -14px rgba(34,211,238,.9);
+    transition:transform .18s, box-shadow .25s, filter .25s, background .3s;
   }
-  .btn-primary:hover:not(:disabled){background:#4a9cff}
+  .btn-primary:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.06);box-shadow:0 18px 40px -14px rgba(34,211,238,1)}
+  .btn-primary:active:not(:disabled){transform:translateY(0)}
+  .btn-primary:disabled{opacity:.7}
+
+  .spinner{display:none;width:19px;height:19px;border-radius:50%;border:2.5px solid rgba(4,18,28,.3);border-top-color:#04121c;animation:spin .7s linear infinite}
+  .check{display:none;width:22px;height:22px}
+  #submitBtn.busy .btn-label,#submitBtn.busy .btn-icon{display:none}
+  #submitBtn.busy .spinner{display:block}
+  #submitBtn.done{background:linear-gradient(135deg,#34d399,#10b981);box-shadow:0 14px 34px -14px rgba(52,211,153,.9)}
+  #submitBtn.done .btn-label,#submitBtn.done .btn-icon{display:none}
+  #submitBtn.done .check{display:block;animation:pop .5s cubic-bezier(.34,1.56,.64,1) both}
+
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes pop{0%{transform:scale(.2) rotate(-25deg);opacity:0}60%{transform:scale(1.18) rotate(4deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+  @keyframes rise{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
+  @keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(3px)}30%,50%,70%{transform:translateX(-5px)}40%,60%{transform:translateX(5px)}}
 
   .hint-line{
-    margin:11px 0 0;
+    margin:12px 0 0;
     font-size:11.5px;
     line-height:1.5;
     color:var(--dim);
@@ -218,66 +287,87 @@
   }
 
   .foot{
-    padding:2px 6px;
+    position:relative;
+    z-index:2;
+    padding:0 16px 24px;
     font-size:11px;
-    color:#5d6f88;
+    line-height:1.6;
+    color:#55677f;
     text-align:center;
   }
-  .foot a{color:#7f93ad;text-decoration:none}
-  .foot a:hover{color:#b9c8db;text-decoration:underline}
+
+  @media (max-width:480px){
+    main{padding:28px 14px 20px}
+    .card{padding:24px 18px 22px}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .orb{animation:none}
+    *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+  }
 </style>
 </head>
 <body>
 
-<header class="appbar">
-  <div class="appbar-inner">
-    <img class="logo" src="assets/citsa-logo.png" alt="" width="46" height="46">
-    <div class="app-id">
-      <h1>Information Technology</h1>
-      <p>Student Check-in</p>
-    </div>
-  </div>
-</header>
+<div class="orbs" aria-hidden="true">
+  <div class="orb a"></div>
+  <div class="orb b"></div>
+  <div class="orb c"></div>
+</div>
 
 <main>
-  <section class="card" aria-labelledby="checkinTitle">
-    <div class="card-head">
-      <div>
-        <h2 id="checkinTitle">Mark yourself present</h2>
-        <p>Enter your name and student ID. You can check in once per day.</p>
-      </div>
-      <span class="chip" id="todayChip"></span>
-    </div>
+  <section class="glass card" id="checkCard" aria-labelledby="checkinTitle">
+    <img class="logo" src="assets/citsa-logo.png" alt="" width="64" height="64">
+    <p class="eyebrow">Information Technology Department</p>
+    <h1 id="checkinTitle">Mark yourself present</h1>
+    <p class="sub">Enter your name and student ID. You can check in once per day.</p>
+    <span class="chip" id="todayChip"></span>
 
     <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
 
     <form id="checkForm" novalidate autocomplete="off">
       <div class="field" id="fieldName">
         <label for="studentName">Full name <span class="req">*</span></label>
-        <input id="studentName" name="studentName" type="text" placeholder="Amina Yusuf"
-               maxlength="60" autocapitalize="words" spellcheck="false">
+        <div class="input-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="8" r="3.6"/><path d="M4.5 20v-1.2a5 5 0 0 1 5-5h5a5 5 0 0 1 5 5V20"/>
+          </svg>
+          <input id="studentName" name="studentName" type="text" placeholder="Amina Yusuf"
+                 maxlength="60" autocapitalize="words" spellcheck="false">
+        </div>
         <span class="hint" id="hintName"></span>
       </div>
 
       <div class="field" id="fieldId">
         <label for="studentId">Student ID <span class="req">*</span></label>
-        <input id="studentId" name="studentId" type="text" placeholder="PS/ITC/25/0001"
-               maxlength="30" spellcheck="false">
+        <div class="input-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="8.6" cy="11" r="2.1"/>
+            <path d="M5.6 16.4a3.4 3.4 0 0 1 6 0M14 10h4M14 13.5h3"/>
+          </svg>
+          <input id="studentId" name="studentId" type="text" placeholder="PS/ITC/25/0001"
+                 maxlength="30" spellcheck="false">
+        </div>
         <span class="hint" id="hintId">Format: PS/ITC/25/0000</span>
       </div>
 
       <button type="submit" class="btn btn-primary" id="submitBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M20 6 9 17l-5-5"/>
         </svg>
-        <span id="submitLabel">Submit</span>
+        <span class="btn-label" id="submitLabel">Submit</span>
+        <span class="spinner" aria-hidden="true"></span>
+        <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 6 9 17l-5-5"/>
+        </svg>
       </button>
 
       <p class="hint-line">Typing only the serial number completes the ID. 12 becomes PS/ITC/25/0012.</p>
     </form>
   </section>
-
 </main>
+
+<div class="foot">Information Technology Department · Attendance records are stored in the department database</div>
 
 <script src="assets/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -311,7 +401,8 @@
     submitBtn: $("#submitBtn"),
     submitLabel: $("#submitLabel"),
     notice: $("#notice"),
-    todayChip: $("#todayChip")
+    todayChip: $("#todayChip"),
+    card: $("#checkCard")
   };
 
   var db = null;
@@ -357,18 +448,35 @@
   function hideNotice() {
     els.notice.hidden = true;
     els.notice.textContent = "";
-    els.notice.classList.remove("error");
+    els.notice.className = "notice";
+    els.card.classList.remove("ok");
   }
 
   function showNotice(message, kind) {
     els.notice.hidden = false;
     els.notice.className = "notice" + (kind === "error" ? " error" : "");
     els.notice.textContent = message;
+    if (kind !== "error") els.card.classList.add("ok");
+  }
+
+  function shakeCard() {
+    els.card.classList.remove("shake");
+    void els.card.offsetWidth;
+    els.card.classList.add("shake");
   }
 
   function setBusy(on) {
     els.submitBtn.disabled = on;
-    els.submitLabel.textContent = on ? "Saving..." : "Submit";
+    els.submitBtn.classList.toggle("busy", on);
+  }
+
+  function resetButton() {
+    els.submitBtn.classList.remove("busy", "done");
+  }
+
+  function buttonDone() {
+    els.submitBtn.classList.remove("busy");
+    els.submitBtn.classList.add("done");
   }
 
   function liveHints() {
@@ -425,6 +533,7 @@
 
     if (bad) {
       showNotice("Check the highlighted fields.", "error");
+      shakeCard();
       return;
     }
 
@@ -438,57 +547,48 @@
         return;
       }
 
+      buttonDone();
       showNotice(result.data.name + ", you are marked present at " + fmtTime(result.data.marked_at) + ".");
       els.name.value = "";
       els.id.value = "";
       clearFieldErrors();
-      els.name.focus();
+      setTimeout(function () { els.name.focus(); }, 450);
+      setTimeout(resetButton, 1400);
     } catch (e) {
       showNotice("Could not check in. Check your connection and try again.", "error");
+      shakeCard();
     } finally {
-      setBusy(false);
+      els.submitBtn.disabled = false;
+      els.submitBtn.classList.remove("busy");
     }
   }
 
   function handleError(error) {
     var message = error.message || "";
     var code = error.code || "";
+    var failed = true;
 
     if (/ID belongs to a different student/i.test(message)) {
       setFieldError(els.fieldId, els.hintId, "That ID belongs to a different student.");
       showNotice("Check your ID and name, then try again.", "error");
-      return;
-    }
-
-    if (/name is already registered/i.test(message)) {
+    } else if (/name is already registered/i.test(message)) {
       setFieldError(els.fieldName, els.hintName, "That name is registered with a different ID.");
       showNotice("Check the spelling of your name and ID.", "error");
-      return;
-    }
-
-    if (/Already marked present/i.test(message)) {
+    } else if (/Already marked present/i.test(message)) {
       showNotice("You are already marked present for today.", "error");
-      return;
-    }
-
-    if (/Enter your full name|name is too long/i.test(message)) {
+    } else if (/Enter your full name|name is too long/i.test(message)) {
       setFieldError(els.fieldName, els.hintName, message);
       showNotice("Check the highlighted fields.", "error");
-      return;
-    }
-
-    if (/format/i.test(message)) {
+    } else if (/format/i.test(message)) {
       setFieldError(els.fieldId, els.hintId, "Use the format " + ID_EXAMPLE + ".");
       showNotice("Check the highlighted fields.", "error");
-      return;
-    }
-
-    if (code === "PGRST202") {
+    } else if (code === "PGRST202") {
       showNotice("Check-in is not available right now. Ask the administrator.", "error");
-      return;
+    } else {
+      showNotice("Could not check in. Check your connection and try again.", "error");
     }
 
-    showNotice("Could not check in. Check your connection and try again.", "error");
+    if (failed) shakeCard();
   }
 
   function start() {
