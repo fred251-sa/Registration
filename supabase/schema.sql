@@ -34,7 +34,6 @@ alter table public.students enable row level security;
 alter table public.attendance enable row level security;
 
 -- The check lives in a schema that the API does not expose.
--- Admin data is only reachable after the account has also passed its authenticator check.
 create schema if not exists private;
 revoke all on schema private from public;
 revoke all on schema private from anon;
@@ -47,9 +46,7 @@ stable
 security definer
 set search_path = ''
 as $$
-  select
-    coalesce(auth.jwt() ->> 'aal', 'aal1') = 'aal2'
-    and exists (select 1 from public.admins where user_id = auth.uid());
+  select exists (select 1 from public.admins where user_id = auth.uid());
 $$;
 
 revoke all on function private.is_admin() from public;
