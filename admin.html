@@ -1334,8 +1334,13 @@
     if (error.code === "23505") return "That student is already registered.";
     if (error.code === "23503") return "The student record was not found. Refresh the page.";
     if (error.code === "23514") return "That value does not match the allowed format.";
-    if (error.code === "PGRST301" || error.status === 401 || error.status === 403 || error.code === "42501") {
-      return "You do not have access. Sign in as the administrator.";
+    if (error.code === "PGRST301" || error.status === 401) {
+      return "Your session has expired. Sign in again.";
+    }
+    if (error.status === 403 || error.code === "42501") {
+      return "The database refused this request. You are signed in as the " +
+        "administrator, so this is not a sign-in problem: run supabase/schema.sql " +
+        "in the Supabase SQL Editor to restore access.";
     }
     return error.message || "Something went wrong. Try again.";
   }
