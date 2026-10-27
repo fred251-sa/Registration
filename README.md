@@ -16,8 +16,9 @@ Student IDs use the format `PS/ITC/25/0000`. Typing only the serial number compl
 The check-in is rejected when:
 
 - the ID is already registered to a different name,
-- the name is already registered with a different ID,
 - the student is already marked for today.
+
+Two different students may share a name. The ID is what identifies a student.
 
 Case and extra spaces are ignored. Students can only add a check-in. They cannot read the
 register, see other students, or edit anything.
@@ -77,8 +78,8 @@ row. It cannot read or change anything else.
 
 ## Data
 
-- `students`: one row per student. The ID and the name (ignoring case and outer spaces) are
-  unique.
+- `students`: one row per student. The ID is unique; names are not, so two students
+  can share a name.
 - `attendance`: one row per student per date. Deleting a student deletes their records.
 - `admins`: accounts allowed to use the administrator panel.
 

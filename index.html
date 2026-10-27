@@ -632,9 +632,6 @@
     if (/ID belongs to a different student/i.test(message)) {
       setFieldError(els.fieldId, els.hintId, "That ID belongs to a different student.");
       showNotice("Check your ID and name, then try again.", "error");
-    } else if (/name is already registered/i.test(message)) {
-      setFieldError(els.fieldName, els.hintName, "That name is registered with a different ID.");
-      showNotice("Check the spelling of your name and ID.", "error");
     } else if (/Already marked present/i.test(message)) {
       showNotice("You are already marked present for today.", "error");
     } else if (/Enter your full name|name is too long/i.test(message)) {

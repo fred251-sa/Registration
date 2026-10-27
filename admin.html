@@ -1251,16 +1251,13 @@
   function findConflicts(name, id) {
     var nId = normId(id), nName = normName(name);
     var byId = state.students.find(function (s) { return normId(s.id) === nId; }) || null;
-    var byName = state.students.find(function (s) { return normName(s.name) === nName; }) || null;
-    var errors = { name: "", id: "" };
+    var errors = { id: "" };
 
+    // Names are not unique, so only the ID identifies a student.
     if (byId && normName(byId.name) !== nName) {
       errors.id = 'That ID is registered to "' + byId.name + '".';
     }
-    if (byName && normId(byName.id) !== nId) {
-      errors.name = 'That name is registered with ID "' + byName.id + '".';
-    }
-    return { byId: byId, byName: byName, errors: errors };
+    return { byId: byId, errors: errors };
   }
 
   function liveHints() {
@@ -1292,11 +1289,6 @@
       els.fieldId.classList.add("bad");
       idBad = true;
     }
-    if (conflicts.errors.name && !nameBad) {
-      els.hintName.textContent = conflicts.errors.name;
-      els.fieldName.classList.add("bad");
-    }
-
     if (!nameBad && !idBad && conflicts.byId && normName(conflicts.byId.name) === normName(name)) {
       els.hintId.textContent = 'Registered as "' + conflicts.byId.name + '".';
     }
@@ -1331,7 +1323,7 @@
 
   function dbMessage(error) {
     if (!error) return "Something went wrong. Try again.";
-    if (error.code === "23505") return "That student is already registered.";
+    if (error.code === "23505") return "That ID is already registered.";
     if (error.code === "23503") return "The student record was not found. Refresh the page.";
     if (error.code === "23514") return "That value does not match the allowed format.";
     if (error.code === "PGRST301" || error.status === 401) {
@@ -1513,14 +1505,15 @@
     }
 
     var conflicts = findConflicts(name, id);
-    if (conflicts.errors.name || conflicts.errors.id) {
-      if (conflicts.errors.name) setFieldError(els.fieldName, els.hintName, conflicts.errors.name);
-      if (conflicts.errors.id) setFieldError(els.fieldId, els.hintId, conflicts.errors.id);
-      toast("Student already registered.", "error");
+    if (conflicts.errors.id) {
+      setFieldError(els.fieldId, els.hintId, conflicts.errors.id);
+      toast("That ID is already registered.", "error");
       return;
     }
 
-    var student = conflicts.byId || conflicts.byName || null;
+    // Only the ID identifies a student, so a new ID always makes a new student
+    // even when the name matches someone already on the register.
+    var student = conflicts.byId || null;
     var studentId = student ? student.id : id;
     var studentName = student ? student.name : name;
 
@@ -1542,8 +1535,7 @@
             await refresh();
             var again = findConflicts(name, id);
             if (again.errors.id) setFieldError(els.fieldId, els.hintId, again.errors.id);
-            if (again.errors.name) setFieldError(els.fieldName, els.hintName, again.errors.name);
-            toast("Student already registered.", "error");
+            toast("That ID is already registered.", "error");
             return;
           }
           throw added.error;

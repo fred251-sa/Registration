@@ -15,9 +15,9 @@ create table if not exists public.students (
   constraint students_name_length check (char_length(btrim(name)) between 2 and 60)
 );
 
--- One student per name, ignoring case and outer spaces.
-create unique index if not exists students_name_unique
-  on public.students (lower(btrim(name)));
+-- Names are not unique: two different students can share a name. The ID is
+-- what identifies a student, so drop the old one-name-one-student index.
+drop index if exists students_name_unique;
 
 create table if not exists public.attendance (
   id uuid primary key default gen_random_uuid(),
@@ -137,10 +137,6 @@ begin
       raise exception 'That ID belongs to a different student.' using errcode = 'P0001';
     end if;
   else
-    if exists (select 1 from public.students where lower(btrim(name)) = lower(v_name)) then
-      raise exception 'That name is already registered with a different ID.' using errcode = 'P0001';
-    end if;
-
     insert into public.students (student_id, name)
     values (v_id, v_name)
     returning * into v_student;
