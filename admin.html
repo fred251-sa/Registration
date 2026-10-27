@@ -1060,6 +1060,60 @@
 
   var NAME_RE = /^[\p{L}][\p{L}\s.'-]*$/u;
 
+  /* Blocks keyboard-mash before it can be saved. This is a heuristic, not a
+     dictionary: it rejects the shapes gibberish actually takes while letting
+     through any name a person could plausibly have. */
+  var ALPHA = "abcdefghijklmnopqrstuvwxyz";
+  var ALPHA_REV = "zyxwvutsrqponmlkjihgfedcba";
+  var KEY_ROWS = ["qwertyuiop", "asdfghjkl", "zxcvbnm"];
+  var KEY_ROWS_REV = KEY_ROWS.map(function (r) {
+    return r.split("").reverse().join("");
+  });
+  var KEY_COLS = ["qaz", "wsx", "edc", "rfv", "tgb", "yhn", "ujm",
+                  "zaq", "xsw", "cde", "vfr", "bgt", "nhy", "mju"];
+
+  function looksLikeRealName(raw) {
+    var text = String(raw || "").toLowerCase();
+    var letters = String(raw || "").replace(/[^\p{L}]/gu, "").toLowerCase();
+
+    if (letters.length < 2) return false;
+
+    // These checks only read Latin script. A name written in another alphabet
+    // cannot be judged by them, so it is left alone.
+    var latin = letters.replace(/[^a-z]/g, "");
+    if (!latin) return true;
+
+    // "asdfgh", "hjkl", "bcdfg" carry no vowel, so they are not words. Names
+    // of three letters or fewer are exempt, since "Ng" has no vowel either.
+    if (latin.length >= 4 && !/[aeiouy]/.test(latin)) return false;
+
+    // Long runs of one letter: "aaaa", "hgggg". Done word by word, because
+    // "Yaa Asantewaa" only looks like three a's when two words are joined.
+    var words = text.split(/[^a-z]+/);
+    for (var w = 0; w < words.length; w++) {
+      if (/(.)\1\1/.test(words[w])) return false;
+    }
+
+    // Four letters in a row: alphabetical ("abcdefg", "wxyz"), or lying along
+    // one keyboard row ("asdf", "qwer", "hjkl", "zxcv") in either direction.
+    for (var i = 0; i + 4 <= latin.length; i++) {
+      var four = latin.substr(i, 4);
+      if (ALPHA.indexOf(four) !== -1 || ALPHA_REV.indexOf(four) !== -1) return false;
+      for (var r = 0; r < KEY_ROWS.length; r++) {
+        if (KEY_ROWS[r].indexOf(four) !== -1) return false;
+        if (KEY_ROWS_REV[r].indexOf(four) !== -1) return false;
+      }
+    }
+
+    // Three letters down one keyboard column ("qaz", "wsx", "edc"). Matching
+    // the column exactly keeps real names like "Decima" out of its way.
+    for (var j = 0; j + 3 <= latin.length; j++) {
+      if (KEY_COLS.indexOf(latin.substr(j, 3)) !== -1) return false;
+    }
+
+    return true;
+  }
+
   var ID_PREFIX = "PS/ITC/25/";
   var ID_DIGITS = 4;
   var ID_EXAMPLE = ID_PREFIX + "0000";
@@ -1218,6 +1272,10 @@
 
     if (name && !NAME_RE.test(name)) {
       els.hintName.textContent = "Use letters, spaces, apostrophes, hyphens or periods.";
+      els.fieldName.classList.add("bad");
+      nameBad = true;
+    } else if (name && !looksLikeRealName(name)) {
+      els.hintName.textContent = "That doesn't look like a real name.";
       els.fieldName.classList.add("bad");
       nameBad = true;
     }
@@ -1432,6 +1490,9 @@
       bad = true;
     } else if (!NAME_RE.test(name)) {
       setFieldError(els.fieldName, els.hintName, "Use letters, spaces, apostrophes, hyphens or periods.");
+      bad = true;
+    } else if (!looksLikeRealName(name)) {
+      setFieldError(els.fieldName, els.hintName, "That doesn't look like a real name. Enter the student's full name.");
       bad = true;
     }
     if (!id) {

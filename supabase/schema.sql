@@ -86,6 +86,8 @@ declare
   v_id text := upper(regexp_replace(coalesce(p_student_id, ''), '\s+', '', 'g'));
   v_student public.students%rowtype;
   v_marked_at timestamptz;
+  v_latin text;
+  v_chunk text;
 begin
   if v_name = '' or char_length(v_name) < 2 then
     raise exception 'Enter your full name.' using errcode = '22023';
@@ -95,6 +97,37 @@ begin
   end if;
   if v_id !~ '^PS/ITC/25/[0-9]{4}$' then
     raise exception 'Use the format PS/ITC/25/0000.' using errcode = '22023';
+  end if;
+
+  -- Reject keyboard-mash so "asdfgh" or "qwerty" is never stored, even when
+  -- this function is called directly instead of through the form. Only Latin
+  -- script is judged; a name in another alphabet is left alone.
+  v_latin := lower(regexp_replace(v_name, '[^a-z]', '', 'g'));
+
+  if v_latin <> '' then
+    if v_latin !~ '[aeiouy]'        -- no vowel: "asdfgh", "hjkl"
+       or v_latin ~ '^(.)\1+$'      -- one letter repeated: "aaaa"
+       or v_latin ~ '(.)\1\1'       -- long runs of a letter: "hgggg"
+    then
+      raise exception 'That does not look like a real name.' using errcode = '22023';
+    end if;
+
+    -- Four letters in a row: alphabetical ("abcdefg"), or lying on one
+    -- keyboard row ("asdf", "qwer", "hjkl", "zxcv"), in either direction.
+    for i in 1 .. char_length(v_latin) - 3 loop
+      v_chunk := substr(v_latin, i, 4);
+      if position(v_chunk in 'abcdefghijklmnopqrstuvwxyz') > 0
+         or position(v_chunk in 'zyxwvutsrqponmlkjihgfedcba') > 0
+         or position(v_chunk in 'qwertyuiop') > 0
+         or position(v_chunk in 'poiuytrewq') > 0
+         or position(v_chunk in 'asdfghjkl') > 0
+         or position(v_chunk in 'lkjhgfdsa') > 0
+         or position(v_chunk in 'zxcvbnm') > 0
+         or position(v_chunk in 'mnbvcxz') > 0
+      then
+        raise exception 'That does not look like a real name.' using errcode = '22023';
+      end if;
+    end loop;
   end if;
 
   select * into v_student from public.students where student_id = v_id;
