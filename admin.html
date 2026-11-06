@@ -1051,6 +1051,8 @@
 
 <script src="assets/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/posthog-js@1.447.3/dist/array.js"></script>
+<script src="assets/analytics.js"></script>
 <script>
 (function () {
   "use strict";
@@ -1172,6 +1174,8 @@
   };
 
   var db = null;
+  // PostHog. assets/analytics.js stays silent until the visitor allows it.
+  var analytics = window.attendanceAnalytics || null;
   var state = { students: [], records: [], last: null };
   var lastAdded = null;
 
@@ -1445,6 +1449,13 @@
     var user = await db.auth.getUser();
     els.whoami.textContent = user.data.user ? user.data.user.email : "";
 
+    if (analytics && user.data.user) {
+      analytics.identify(user.data.user.id, {
+        role: "administrator",
+        email: user.data.user.email
+      });
+    }
+
     els.authScreen.hidden = true;
     els.app.hidden = false;
     els.settingsBtn.hidden = false;
@@ -1565,6 +1576,7 @@
       }
 
       lastAdded = date + "|" + normId(studentId);
+      if (analytics) analytics.capture("attendance_marked", { source: "admin_panel" });
       await refresh();
       toast(studentName + " marked present.", "ok");
 
@@ -1778,6 +1790,10 @@
   $("#signOutBtn").addEventListener("click", async function () {
     closeSheet();
     await db.auth.signOut();
+    if (analytics) {
+      analytics.capture("admin_signed_out");
+      analytics.reset();
+    }
     state = { students: [], records: [], last: null };
     els.whoami.textContent = "";
     showAuth("");
@@ -1822,6 +1838,7 @@
     a.click();
     a.remove();
     setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+    if (analytics) analytics.capture("csv_exported", { records: result.data.length });
     closeSheet();
     toast("Exported " + result.data.length + " records.", "ok");
   });
@@ -1845,6 +1862,11 @@
     var result = await db.auth.signInWithPassword({ email: email, password: password });
 
     if (result.error) {
+      if (analytics) {
+        analytics.capture("admin_sign_in_failed", {
+          reason: isNetworkError(result.error) ? "network" : (result.error.code || "credentials")
+        });
+      }
       els.authMsg.textContent = dbMessage(result.error);
       authFailed();
       return;
@@ -1854,6 +1876,7 @@
     authSucceeded();
     await new Promise(function (r) { setTimeout(r, 650); });
     await enterApp();
+    if (analytics && !els.app.hidden) analytics.capture("admin_signed_in");
   });
 
   /* ---------- password visibility toggle ---------- */

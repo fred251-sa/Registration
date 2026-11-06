@@ -58,6 +58,35 @@ You need a Supabase project (the free plan is enough).
 
 The publishable key is meant to be public. It gives no access to the tables on its own.
 
+## Analytics
+
+Both pages load the PostHog browser bundle (`posthog-js`) and send product events through
+`assets/analytics.js`. Analytics stays off until a project key is filled in, and nothing is
+sent until the visitor accepts the consent notice at the bottom of the page. Declining keeps
+PostHog opted out, so no cookie, no event and no person profile is created. Session recording
+is off, and student names are never sent.
+
+To turn it on, create a project at https://posthog.com, then put the **Project API key** (it is
+public, like the Supabase publishable key) in `assets/config.js`:
+
+```js
+window.POSTHOG_KEY = "phc_...";
+window.POSTHOG_HOST = "https://us.i.posthog.com";
+```
+
+Events:
+
+- Student page: `check_in_started`, `check_in_completed`, `check_in_failed` (with `reason`).
+- Admin page: `admin_signed_in`, `admin_sign_in_failed` (with `reason`), `admin_signed_out`,
+  `attendance_marked`, `csv_exported`.
+
+Students are identified as `student:<student ID>` and administrators by their Supabase user ID,
+so funnels and retention work per person. Useful funnels: `check_in_started` to
+`check_in_completed`, and `admin_signed_in` to `attendance_marked`.
+
+`package.json` pins the SDK version that the CDN URL in both pages loads. Bump both together
+when upgrading.
+
 ## Access
 
 Row level security is on for `students`, `attendance` and `admins`.
@@ -87,7 +116,9 @@ row. It cannot read or change anything else.
 
 - `index.html`: student check-in page.
 - `admin.html`: administrator panel.
-- `assets/config.js`: Supabase URL and publishable key.
+- `assets/config.js`: Supabase URL and publishable key, PostHog project key.
+- `assets/analytics.js`: PostHog setup, consent notice and event helpers.
+- `package.json`: pinned PostHog SDK version (the pages load it from the CDN).
 - `supabase/schema.sql`: tables, constraints, row level security and the check-in function.
 - `assets/citsa-logo.png`: logo. The untouched original is `assets/citsa-logo-original.jpg`.
 

@@ -371,12 +371,24 @@
 
 <script src="assets/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/posthog-js@1.447.3/dist/array.js"></script>
+<script src="assets/analytics.js"></script>
 <script>
 (function () {
   "use strict";
 
   var SUPABASE_URL = window.SUPABASE_URL || "";
   var SUPABASE_KEY = window.SUPABASE_KEY || "";
+
+  // PostHog. assets/analytics.js stays silent until the visitor allows it.
+  var analytics = window.attendanceAnalytics || null;
+  var checkInStarted = false;
+
+  function trackStarted() {
+    if (checkInStarted) return;
+    checkInStarted = true;
+    if (analytics) analytics.capture("check_in_started");
+  }
 
   var NAME_RE = /^[\p{L}][\p{L}\s.'-]*$/u;
 
@@ -609,6 +621,10 @@
       }
 
       buttonDone();
+      if (analytics) {
+        analytics.identify("student:" + id, { role: "student" });
+        analytics.capture("check_in_completed", { student_id: id });
+      }
       showNotice(result.data.name + ", you are marked present at " + fmtTime(result.data.marked_at) + ".");
       els.name.value = "";
       els.id.value = "";
@@ -616,6 +632,7 @@
       setTimeout(function () { els.name.focus(); }, 450);
       setTimeout(resetButton, 1400);
     } catch (e) {
+      if (analytics) analytics.capture("check_in_failed", { reason: "network" });
       showNotice("Could not check in. Check your connection and try again.", "error");
       shakeCard();
     } finally {
@@ -628,24 +645,31 @@
     var message = error.message || "";
     var code = error.code || "";
     var failed = true;
+    var reason = "unknown";
 
     if (/ID belongs to a different student/i.test(message)) {
+      reason = "id_mismatch";
       setFieldError(els.fieldId, els.hintId, "That ID belongs to a different student.");
       showNotice("Check your ID and name, then try again.", "error");
     } else if (/Already marked present/i.test(message)) {
+      reason = "already_marked";
       showNotice("You are already marked present for today.", "error");
     } else if (/Enter your full name|name is too long/i.test(message)) {
+      reason = "bad_name";
       setFieldError(els.fieldName, els.hintName, message);
       showNotice("Check the highlighted fields.", "error");
     } else if (/format/i.test(message)) {
+      reason = "bad_id";
       setFieldError(els.fieldId, els.hintId, "Use the format " + ID_EXAMPLE + ".");
       showNotice("Check the highlighted fields.", "error");
     } else if (code === "PGRST202") {
+      reason = "not_configured";
       showNotice("Check-in is not available right now. Ask the administrator.", "error");
     } else {
       showNotice("Could not check in. Check your connection and try again.", "error");
     }
 
+    if (analytics) analytics.capture("check_in_failed", { reason: reason });
     if (failed) shakeCard();
   }
 
@@ -675,11 +699,13 @@
 
   els.name.addEventListener("input", function () {
     hideNotice();
+    trackStarted();
     liveHints();
   });
 
   els.id.addEventListener("input", function () {
     hideNotice();
+    trackStarted();
     liveHints();
   });
 
